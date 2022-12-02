@@ -1,0 +1,232 @@
+{
+	"name": "ADF_RECEIPT_FILESYSTEM_TEMPPARTNER_MBR",
+	"properties": {
+		"activities": [
+			{
+				"name": "SetProtocol",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ADF_PROTOCOL",
+					"value": {
+						"value": "@split(pipeline().Pipeline,'_')[2]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetProducer",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SetProtocol",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ADF_PRODUCER",
+					"value": {
+						"value": "@split(pipeline().Pipeline,'_')[3]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SetTransType",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "SetProducer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ADF_TRANSTYPE",
+					"value": {
+						"value": "@split(pipeline().Pipeline,'_')[4]",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Lookup ReceiptAzureFileStorage",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "SetTransType",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureTableSource",
+						"azureTableSourceQuery": {
+							"value": "@concat('Producer eq ''',variables('ADF_PRODUCER'),''' and TransactionType eq ''',variables('ADF_TRANSTYPE'),'''')",
+							"type": "Expression"
+						},
+						"azureTableSourceIgnoreTableNotFound": false
+					},
+					"dataset": {
+						"referenceName": "ADF_GEN_ATS",
+						"type": "DatasetReference",
+						"parameters": {
+							"atsTableName": {
+								"value": "@pipeline().globalParameters.CODELISTS_AFS_RECEIPT_TABLE",
+								"type": "Expression"
+							},
+							"akvBaseURL": {
+								"value": "@pipeline().globalParameters.AKV_BASE_URL",
+								"type": "Expression"
+							},
+							"atsStorageAccountKeySecretName": {
+								"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+								"type": "Expression"
+							},
+							"atsStorageAccountName": {
+								"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach ReceiptConfig",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup ReceiptAzureFileStorage",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup ReceiptAzureFileStorage').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Get File List",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ADF_GEN_AFS_SINK",
+									"type": "DatasetReference",
+									"parameters": {
+										"akvSecretname": {
+											"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+											"type": "Expression"
+										},
+										"storageAccount": {
+											"value": "@item().StorageAccount",
+											"type": "Expression"
+										},
+										"fileShare": {
+											"value": "@item().FileShare",
+											"type": "Expression"
+										},
+										"filePath": {
+											"value": "@item().CollectionDirectory",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"childItems"
+								],
+								"storeSettings": {
+									"type": "AzureFileStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Filter Files",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Get File List",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "ADF_GEN_FILTER_FILES",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"FileList": {
+										"value": "@activity('Get File List').output.childItems",
+										"type": "Expression"
+									},
+									"ReceiptConfig": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"EVC_PROTOCOL": {
+				"type": "String"
+			},
+			"ADF_PRODUCER": {
+				"type": "String"
+			},
+			"ADF_TRANSTYPE": {
+				"type": "String"
+			},
+			"ADF_PROTOCOL": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "PARTNER_SPECIFIC"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-12-02T01:46:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

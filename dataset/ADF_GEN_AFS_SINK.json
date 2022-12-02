@@ -1,0 +1,52 @@
+{
+	"name": "ADF_GEN_AFS_SINK",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADF_GEN_AFS",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"akvSecretname": {
+					"value": "@dataset().akvSecretname",
+					"type": "Expression"
+				},
+				"storageAccount": {
+					"value": "@dataset().storageAccount",
+					"type": "Expression"
+				},
+				"fileShare": {
+					"value": "@dataset().fileShare",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"akvSecretname": {
+				"type": "string"
+			},
+			"storageAccount": {
+				"type": "string"
+			},
+			"fileShare": {
+				"type": "string"
+			},
+			"filePath": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "GENERIC"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureFileStorageLocation",
+				"folderPath": {
+					"value": "@dataset().filePath",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

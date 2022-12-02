@@ -1,0 +1,12 @@
+{
+	"name": "ADF_GEN_AKV",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "ADF_GEN_AKV",
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://adf-gen-akv.vault.azure.net/"
+		}
+	}
+}

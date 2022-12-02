@@ -1,0 +1,52 @@
+{
+	"name": "TEST_AFS_SOURCE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "TEST_AFS",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"akvBaseURL": {
+					"value": "@dataset().akvBaseURL",
+					"type": "Expression"
+				},
+				"akvSecretname": {
+					"value": "@dataset().akvSecretname",
+					"type": "Expression"
+				},
+				"storageAccount": {
+					"value": "@dataset().storageAccount",
+					"type": "Expression"
+				},
+				"fileShare": {
+					"value": "@dataset().fileShare",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"akvBaseURL": {
+				"type": "string"
+			},
+			"akvSecretname": {
+				"type": "string"
+			},
+			"storageAccount": {
+				"type": "string"
+			},
+			"fileShare": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureFileStorageLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

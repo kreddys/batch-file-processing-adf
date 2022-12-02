@@ -1,0 +1,40 @@
+{
+	"name": "ADF_GEN_ATS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "ADF_GEN_ATS",
+		"parameters": {
+			"akvBaseURL": {
+				"type": "string"
+			},
+			"storageAccountKeySecretName": {
+				"type": "string"
+			},
+			"storageAccountName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureTableStorage",
+		"typeProperties": {
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ADF_GEN_AKV",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"baseURL": {
+							"value": "@linkedService().akvBaseURL",
+							"type": "Expression"
+						}
+					}
+				},
+				"secretName": {
+					"value": "@linkedService().storageAccountKeySecretName",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}

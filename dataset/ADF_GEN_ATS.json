@@ -1,0 +1,50 @@
+{
+	"name": "ADF_GEN_ATS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADF_GEN_ATS",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"akvBaseURL": {
+					"value": "@dataset().akvBaseURL",
+					"type": "Expression"
+				},
+				"storageAccountKeySecretName": {
+					"value": "@dataset().atsStorageAccountKeySecretName",
+					"type": "Expression"
+				},
+				"storageAccountName": {
+					"value": "@dataset().atsStorageAccountName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"atsTableName": {
+				"type": "string"
+			},
+			"akvBaseURL": {
+				"type": "string"
+			},
+			"atsStorageAccountKeySecretName": {
+				"type": "string"
+			},
+			"atsStorageAccountName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "GENERIC"
+		},
+		"annotations": [],
+		"type": "AzureTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": {
+				"value": "@dataset().atsTableName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

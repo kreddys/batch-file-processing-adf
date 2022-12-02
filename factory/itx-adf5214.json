@@ -1,0 +1,57 @@
+{
+	"name": "itx-adf5214",
+	"properties": {
+		"globalParameters": {
+			"AKV_BASE_URL": {
+				"type": "string",
+				"value": "https://adf-gen-akv.vault.azure.net/"
+			},
+			"CODELISTS_AFS_RECEIPT_TABLE": {
+				"type": "string",
+				"value": "ReceiptAzureFileStorage"
+			},
+			"SA_KEY_SECRET_NAME": {
+				"type": "string",
+				"value": "adfsa5214AccountKey"
+			},
+			"CODELISTS_STORAGE_ACCOUNT": {
+				"type": "string",
+				"value": "adfsa5214"
+			},
+			"WORKINGDATA_STORAGE_ACCOUNT": {
+				"type": "string",
+				"value": "adfsa5214"
+			},
+			"WORKINGDATA_FILE_SHARE": {
+				"type": "string",
+				"value": "working"
+			},
+			"WORKINGDATA_ROOT_DIR": {
+				"type": "string",
+				"value": "WorkingDir/"
+			},
+			"CODELISTS_ARCHIVE_PRODUCER_TABLE": {
+				"type": "string",
+				"value": "ArchiveProducer"
+			},
+			"REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME": {
+				"type": "string",
+				"value": "RegExFileNameMatchFunctionKey"
+			},
+			"REGEX_FILENAME_MATCH_FUNCTION_APP_URL": {
+				"type": "string",
+				"value": "https://regexfilenamematch5214.azurewebsites.net"
+			},
+			"REGEX_FILENAME_MATCH_FUNCTION_NAME": {
+				"type": "string",
+				"value": "RegexFileNameMatch"
+			}
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0c60054e-154d-4fdd-8508-d164dee9920b",
+		"tenantId": "0cdb2ad8-cc75-4517-b1db-cc98490e8528"
+	}
+}

@@ -1,0 +1,73 @@
+{
+	"name": "TEST_COPY",
+	"properties": {
+		"activities": [
+			{
+				"name": "copy",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureFileStorageReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": "TEMPPARTNER/MBR/RawData",
+							"wildcardFileName": "TempPartner_T_I_*.txt",
+							"deleteFilesAfterCompletion": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureFileStorageWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "TEST_AFS_SOURCE",
+						"type": "DatasetReference",
+						"parameters": {
+							"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
+							"akvSecretname": "adfsa5214AccountKey",
+							"storageAccount": "adfsa5214",
+							"fileShare": "adf-data"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "TEST_AFS_SINK",
+						"type": "DatasetReference",
+						"parameters": {
+							"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
+							"akvSecretname": "adfsa5214AccountKey",
+							"storageAccount": "adfsa5214",
+							"fileShare": "working",
+							"filePath": "WorkingDir"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-27T17:38:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

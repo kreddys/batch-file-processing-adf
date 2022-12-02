@@ -1,0 +1,34 @@
+{
+	"name": "ADF_GEN_AFS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"akvSecretname": {
+				"type": "string"
+			},
+			"storageAccount": {
+				"type": "string"
+			},
+			"fileShare": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureFileStorage",
+		"typeProperties": {
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ADF_GEN_AKV",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().akvSecretname",
+					"type": "Expression"
+				}
+			},
+			"fileShare": "@{linkedService().fileShare}"
+		}
+	}
+}

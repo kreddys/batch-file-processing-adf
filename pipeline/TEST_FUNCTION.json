@@ -1,0 +1,62 @@
+{
+	"name": "TEST_FUNCTION",
+	"properties": {
+		"activities": [
+			{
+				"name": "Azure Function1",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": "RegexFileNameMatch",
+					"method": "POST",
+					"body": {
+						"files": [
+							{
+								"name": "Archive",
+								"type": "Folder"
+							},
+							{
+								"name": "TempPartner_F_I_20221127.txt",
+								"type": "File"
+							},
+							{
+								"name": "TempPartner_C_I_20221127.txt",
+								"type": "File"
+							},
+							{
+								"name": "TempPartner_T_I_20221128.txt",
+								"type": "File"
+							}
+						],
+						"pattern": "TempPartner_T_I_.+.txt$"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ADF_GEN_FUNCTION",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"functionAppURL": "https://regexfilenamematch5214.azurewebsites.net",
+						"secretName": {
+							"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-12-01T02:20:35Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

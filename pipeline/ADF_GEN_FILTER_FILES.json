@@ -1,0 +1,173 @@
+{
+	"name": "ADF_GEN_FILTER_FILES",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach File",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "CheckFileName",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@json(activity('CheckFileName').output.Response)",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Copy To Working Dir",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "ADF_GEN_COPY_TO_WORKINGDIR",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"SOURCE_STORAGE_ACCOUNT": {
+										"value": "@pipeline().parameters.ReceiptConfig.StorageAccount",
+										"type": "Expression"
+									},
+									"SOURCE_FILESHARE": {
+										"value": "@pipeline().parameters.ReceiptConfig.FileShare",
+										"type": "Expression"
+									},
+									"SOURCE_COLLECTION_DIR": {
+										"value": "@pipeline().parameters.ReceiptConfig.CollectionDirectory",
+										"type": "Expression"
+									},
+									"SOURCE_FILEMASK": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"SOURCE_FILE_MODIFIED_THRESHOLD": {
+										"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
+										"type": "Expression"
+									},
+									"SOURCE_DELETE_AFTER_COLLECT": {
+										"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
+										"type": "Expression"
+									},
+									"SOURCE_COLLECT_FROM_SUBFOLDERS": {
+										"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
+										"type": "Expression"
+									},
+									"SINK_STORAGE_ACCOUNT": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"SINK_FILESHARE": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+										"type": "Expression"
+									},
+									"SINK_FILEPATH": {
+										"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "CheckFileName",
+				"type": "AzureFunctionActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"functionName": {
+						"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_NAME",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"body": {
+						"value": "@json(concat('{\"files\":',string(pipeline().parameters.FileList),',\"pattern\": \"',string(pipeline().parameters.ReceiptConfig.FileMask),'\"'))",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ADF_GEN_FUNCTION",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"functionAppURL": {
+							"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_APP_URL",
+							"type": "Expression"
+						},
+						"secretName": {
+							"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"FileList": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"name": "Archive",
+						"type": "Folder"
+					},
+					{
+						"name": "TempPartner_F_I_20221127.txt",
+						"type": "File"
+					},
+					{
+						"name": "TempPartner_T_I_20221127.txt",
+						"type": "File"
+					},
+					{
+						"name": "TempPartner_T_I_20221128.txt",
+						"type": "File"
+					}
+				]
+			},
+			"ReceiptConfig": {
+				"type": "object",
+				"defaultValue": {
+					"PartitionKey": "",
+					"RowKey": "2",
+					"Timestamp": "2022-11-29T00:55:29.3211264Z",
+					"CollectFromSubFolders": false,
+					"CollectZeroByteFiles": false,
+					"CollectionDirectory": "/TEMPPARTNER/MBR/RawData",
+					"ConfigID": 2,
+					"DeleteAfterCollect": true,
+					"Description": "Test Config2",
+					"FileMask": "TempPartner_T_I_.+.txt$",
+					"FileModifiedThreshold": 15,
+					"FileShare": "adf-data",
+					"PreReceiptProcess": "NA",
+					"Producer": "TEMPPARTNER",
+					"StorageAccount": "adfsa5214",
+					"TransactionType": "MBR",
+					"UnProcessedDirectory": "/TempPartner/MBR/RawData/UnProcessed"
+				}
+			}
+		},
+		"folder": {
+			"name": "GENERIC"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-12-02T01:16:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
