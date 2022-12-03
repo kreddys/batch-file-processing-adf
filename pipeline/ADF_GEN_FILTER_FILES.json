@@ -100,7 +100,7 @@
 								"source": {
 									"type": "AzureTableSource",
 									"azureTableSourceQuery": {
-										"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ''',pipeline().parameters.ReceiptConfig.ConfigID,'''')",
+										"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ',pipeline().parameters.ReceiptConfig.ConfigID,'')",
 										"type": "Expression"
 									},
 									"azureTableSourceIgnoreTableNotFound": false
