@@ -263,7 +263,7 @@
 												"type": "Expression"
 											},
 											"SOURCE_DELETE_AFTER_COLLECT": {
-												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
+												"value": "false",
 												"type": "Expression"
 											},
 											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
@@ -309,7 +309,7 @@
 										"source": {
 											"type": "AzureTableSource",
 											"azureTableSourceQuery": {
-												"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ''',pipeline().parameters.ReceiptConfig.ConfigID,'''')",
+												"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ',pipeline().parameters.ReceiptConfig.ConfigID,'')",
 												"type": "Expression"
 											},
 											"azureTableSourceIgnoreTableNotFound": false
@@ -336,7 +336,7 @@
 												}
 											}
 										},
-										"firstRowOnly": false
+										"firstRowOnly": true
 									}
 								},
 								{
@@ -375,6 +375,69 @@
 												"value": "@pipeline().globalParameters.RESOURCE",
 												"type": "Expression"
 											}
+										}
+									}
+								},
+								{
+									"name": "Copy To Archive",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Get WokingDirFilePath",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SOURCE_STORAGE_ACCOUNT": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+												"type": "Expression"
+											},
+											"SOURCE_FILESHARE": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECTION_DIR": {
+												"value": "@activity('Get WokingDirFilePath').output.value[1].output.value",
+												"type": "Expression"
+											},
+											"SOURCE_FILEMASK": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"SOURCE_FILE_MODIFIED_THRESHOLD": {
+												"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
+												"type": "Expression"
+											},
+											"SOURCE_DELETE_AFTER_COLLECT": {
+												"value": "false",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
+												"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
+												"type": "Expression"
+											},
+											"SINK_STORAGE_ACCOUNT": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+												"type": "Expression"
+											},
+											"SINK_FILESHARE": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+												"type": "Expression"
+											},
+											"SINK_FILEPATH": {
+												"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
+												"type": "Expression"
+											},
+											"COPY_TYPE": "WORKING_DIR"
 										}
 									}
 								}
