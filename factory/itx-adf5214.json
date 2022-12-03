@@ -49,6 +49,10 @@
 			"SUBSCRIPTION_ID": {
 				"type": "string",
 				"value": "test"
+			},
+			"RESOURCE_GROUP_NAME": {
+				"type": "string",
+				"value": "test"
 			}
 		}
 	},
