@@ -28,7 +28,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_COPY_TO_WORKINGDIR",
+									"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
