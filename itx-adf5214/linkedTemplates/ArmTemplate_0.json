@@ -1031,7 +1031,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"url": {
-											"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{json(activity('Copy To Working Dir').output).pipelineRunId}/queryActivityruns?api-version=2018-06-01",
+											"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{activity('Copy To Working Dir').output.pipelineRunId}/queryActivityruns?api-version=2018-06-01",
 											"type": "Expression"
 										},
 										"method": "POST",
