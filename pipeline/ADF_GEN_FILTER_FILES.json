@@ -72,7 +72,8 @@
 									"SINK_FILEPATH": {
 										"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
 										"type": "Expression"
-									}
+									},
+									"COPY_TYPE": "WORKING_DIR"
 								}
 							}
 						}

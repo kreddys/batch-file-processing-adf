@@ -83,7 +83,7 @@
 								"type": "Expression"
 							},
 							"filePath": {
-								"value": "@concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId)",
+								"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
 								"type": "Expression"
 							}
 						}
@@ -120,6 +120,9 @@
 				"type": "string"
 			},
 			"SINK_FILEPATH": {
+				"type": "string"
+			},
+			"COPY_TYPE": {
 				"type": "string"
 			}
 		},
