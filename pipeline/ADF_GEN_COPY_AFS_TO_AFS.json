@@ -89,6 +89,26 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Set SINK_FILE_PATH",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "SINK_FILE_PATH",
+					"value": {
+						"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -124,6 +144,11 @@
 			},
 			"COPY_TYPE": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"SINK_FILE_PATH": {
+				"type": "String"
 			}
 		},
 		"folder": {
