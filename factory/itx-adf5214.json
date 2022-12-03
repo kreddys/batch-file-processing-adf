@@ -45,6 +45,10 @@
 			"REGEX_FILENAME_MATCH_FUNCTION_NAME": {
 				"type": "string",
 				"value": "RegexFileNameMatch"
+			},
+			"SUBSCRIPTION_ID": {
+				"type": "string",
+				"value": "test"
 			}
 		}
 	},
