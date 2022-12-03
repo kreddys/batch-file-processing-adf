@@ -52,7 +52,7 @@
 			},
 			"RESOURCE_GROUP_NAME": {
 				"type": "string",
-				"value": "test"
+				"value": "adf"
 			}
 		}
 	},
