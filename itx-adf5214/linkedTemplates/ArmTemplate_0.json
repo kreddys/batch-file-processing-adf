@@ -553,7 +553,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_TO_WORKINGDIR')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_AFS_TO_AFS')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -811,7 +811,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "ADF_GEN_COPY_TO_WORKINGDIR",
+											"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -960,7 +960,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_TO_WORKINGDIR')]"
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_AFS_TO_AFS')]"
 			]
 		},
 		{
