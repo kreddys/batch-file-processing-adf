@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "itx-adf5214"
+		},
+		"ADF_GEN_AFS_connectionString": {
+			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};"
+		},
+		"ADF_GEN_ATS_connectionString": {
+			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};"
+		},
+		"TEST_AFS_connectionString": {
+			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};"
+		},
+		"ADF_GEN_AKV_properties_typeProperties_baseUrl": {
+			"value": "https://adf-gen-akv.vault.azure.net/"
+		},
+		"ADF_GEN_FUNCTION_properties_typeProperties_functionAppUrl": {
+			"value": "@{linkedService().functionAppURL}"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
