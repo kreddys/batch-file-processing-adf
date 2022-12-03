@@ -1,0 +1,64 @@
+{
+	"name": "TEST_GET_PIPELINE_OUTPUT",
+	"properties": {
+		"activities": [
+			{
+				"name": "Web1",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://management.azure.com/subscriptions/@{pipeline().parameters.SubscriptionId}/resourceGroups/@{pipeline().parameters.ResourceGroupName}/providers/Microsoft.DataFactory/factories/@{pipeline().parameters.DataFactoryName}/pipelineruns/@{pipeline().parameters.PipelineRunId}/queryActivityruns?api-version=2018-06-01",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"body": {
+						"lastUpdatedAfter": "2018-06-16T00:36:44.3345758Z",
+						"lastUpdatedBefore": "2023-06-16T00:49:48.3686473Z"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": {
+							"value": "@pipeline().parameters.Resource",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SubscriptionId": {
+				"type": "string",
+				"defaultValue": "7344a1c7-35fe-48aa-9793-8b6968225662"
+			},
+			"ResourceGroupName": {
+				"type": "string",
+				"defaultValue": "adf"
+			},
+			"DataFactoryName": {
+				"type": "string",
+				"defaultValue": "itx-adf5214"
+			},
+			"PipelineRunId": {
+				"type": "string",
+				"defaultValue": "8395084c-f9e5-40d9-b3f3-25bbb24ac96e"
+			},
+			"Resource": {
+				"type": "string",
+				"defaultValue": "https://management.azure.com"
+			}
+		},
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": []
+	}
+}
