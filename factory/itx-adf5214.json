@@ -53,6 +53,10 @@
 			"RESOURCE_GROUP_NAME": {
 				"type": "string",
 				"value": "adf"
+			},
+			"RESOURCE": {
+				"type": "string",
+				"value": "https://management.azure.com"
 			}
 		}
 	},
