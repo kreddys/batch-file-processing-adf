@@ -42,5 +42,17 @@
 	"REGEX_FILENAME_MATCH_FUNCTION_NAME": {
 		"type": "string",
 		"value": "RegexFileNameMatch"
+	},
+	"SUBSCRIPTION_ID": {
+		"type": "string",
+		"value": "7344a1c7-35fe-48aa-9793-8b6968225662"
+	},
+	"RESOURCE_GROUP_NAME": {
+		"type": "string",
+		"value": "adf"
+	},
+	"RESOURCE": {
+		"type": "string",
+		"value": "https://management.azure.com"
 	}
 }
