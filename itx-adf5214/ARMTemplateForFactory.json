@@ -128,6 +128,26 @@
 								}
 							}
 						]
+					},
+					{
+						"name": "Set SINK_FILE_PATH",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Copy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "SINK_FILE_PATH",
+							"value": {
+								"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -167,6 +187,11 @@
 					},
 					"COPY_TYPE": {
 						"type": "string"
+					}
+				},
+				"variables": {
+					"SINK_FILE_PATH": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -259,6 +284,59 @@
 											},
 											"COPY_TYPE": "WORKING_DIR"
 										}
+									}
+								},
+								{
+									"name": "Lookup ArchiveProducer",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Copy To Working Dir",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureTableSource",
+											"azureTableSourceQuery": {
+												"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ''',pipeline().parameters.ReceiptConfig.ConfigID,'''')",
+												"type": "Expression"
+											},
+											"azureTableSourceIgnoreTableNotFound": false
+										},
+										"dataset": {
+											"referenceName": "ADF_GEN_ATS",
+											"type": "DatasetReference",
+											"parameters": {
+												"atsTableName": {
+													"value": "@pipeline().globalParameters.CODELISTS_ARCHIVE_PRODUCER_TABLE",
+													"type": "Expression"
+												},
+												"akvBaseURL": {
+													"value": "@pipeline().globalParameters.AKV_BASE_URL",
+													"type": "Expression"
+												},
+												"atsStorageAccountKeySecretName": {
+													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+													"type": "Expression"
+												},
+												"atsStorageAccountName": {
+													"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+													"type": "Expression"
+												}
+											}
+										},
+										"firstRowOnly": false
 									}
 								}
 							]
@@ -353,6 +431,11 @@
 						}
 					}
 				},
+				"variables": {
+					"SINK_FILE_PATH": {
+						"type": "String"
+					}
+				},
 				"folder": {
 					"name": "GENERIC"
 				},
@@ -361,7 +444,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_AFS_TO_AFS')]"
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_AFS_TO_AFS')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
 			]
 		},
 		{
