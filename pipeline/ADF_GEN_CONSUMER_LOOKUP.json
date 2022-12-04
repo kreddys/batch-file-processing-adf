@@ -1,0 +1,31 @@
+{
+	"name": "ADF_GEN_CONSUMER_LOOKUP",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
+		"parameters": {
+			"ProducerFileLocation": {
+				"type": "string"
+			},
+			"ProducerFileName": {
+				"type": "string"
+			},
+			"ConsumersList": {
+				"type": "array"
+			}
+		},
+		"folder": {
+			"name": "GENERIC"
+		},
+		"annotations": []
+	}
+}

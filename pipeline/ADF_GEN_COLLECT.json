@@ -201,7 +201,7 @@
 									"referenceName": "ADF_GEN_COPY_FILE",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true,
+								"waitOnCompletion": false,
 								"parameters": {
 									"SOURCE_TYPE": {
 										"value": "@pipeline().globalParameters.WORKING_DATA_PROTOCOL",
@@ -260,6 +260,93 @@
 										"type": "Expression"
 									},
 									"COPY_TYPE": "ARCHIVE"
+								}
+							}
+						},
+						{
+							"name": "Lookup Consumers",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "Get WokingDirFilePath",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureTableSource",
+									"azureTableSourceQuery": {
+										"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,'''')",
+										"type": "Expression"
+									},
+									"azureTableSourceIgnoreTableNotFound": false
+								},
+								"dataset": {
+									"referenceName": "ADF_GEN_ATS",
+									"type": "DatasetReference",
+									"parameters": {
+										"atsTableName": {
+											"value": "@pipeline().globalParameters.CODELISTS_CONSUMER_LOOKUP",
+											"type": "Expression"
+										},
+										"akvBaseURL": {
+											"value": "@pipeline().globalParameters.AKV_BASE_URL",
+											"type": "Expression"
+										},
+										"atsStorageAccountKeySecretName": {
+											"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+											"type": "Expression"
+										},
+										"atsStorageAccountName": {
+											"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+											"type": "Expression"
+										}
+									}
+								},
+								"firstRowOnly": true
+							}
+						},
+						{
+							"name": "Consumer Lookup",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Lookup Consumers",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "ADF_GEN_CONSUMER_LOOKUP",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"ProducerFileLocation": {
+										"value": "@activity('Get WokingDirFilePath').output.value[0].output.value",
+										"type": "Expression"
+									},
+									"ProducerFileName": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"ConsumersList": {
+										"value": "@activity('Lookup Consumers').output",
+										"type": "Expression"
+									}
 								}
 							}
 						}
