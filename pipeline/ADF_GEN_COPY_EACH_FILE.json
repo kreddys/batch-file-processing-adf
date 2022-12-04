@@ -37,7 +37,7 @@
 							"value": "AFS_AFS",
 							"activities": [
 								{
-									"name": "Copy",
+									"name": "Copy AFS_AFS",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -133,7 +133,7 @@
 							"value": "AFS_ABS",
 							"activities": [
 								{
-									"name": "copy",
+									"name": "Copy AFS_ABS",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -230,50 +230,65 @@
 			}
 		],
 		"parameters": {
-			"SOURCE_STORAGE_ACCOUNT": {
-				"type": "string"
-			},
-			"SOURCE_FILESHARE": {
-				"type": "string"
-			},
-			"SOURCE_COLLECTION_DIR": {
-				"type": "string"
-			},
-			"SOURCE_FILEMASK": {
-				"type": "string"
-			},
-			"SOURCE_FILE_MODIFIED_THRESHOLD": {
-				"type": "int"
-			},
-			"SOURCE_DELETE_AFTER_COLLECT": {
-				"type": "bool"
-			},
-			"SOURCE_COLLECT_FROM_SUBFOLDERS": {
-				"type": "bool"
-			},
-			"SINK_STORAGE_ACCOUNT": {
-				"type": "string"
-			},
-			"SINK_FILESHARE": {
-				"type": "string"
-			},
-			"SINK_FILEPATH": {
-				"type": "string"
-			},
-			"COPY_TYPE": {
-				"type": "string"
-			},
 			"SOURCE_TYPE": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "AFS"
 			},
-			"SINK_TYPE": {
-				"type": "string"
+			"SOURCE_STORAGE_ACCOUNT": {
+				"type": "string",
+				"defaultValue": "adfsa5214"
 			},
 			"SOURCE_AKV_SECRET_NAME": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "adfsa5214AccountKey"
+			},
+			"SOURCE_FILESHARE": {
+				"type": "string",
+				"defaultValue": "adf-data"
+			},
+			"SOURCE_COLLECTION_DIR": {
+				"type": "string",
+				"defaultValue": "TEMPPARTNER/MBR/RawData/Archive"
+			},
+			"SOURCE_FILEMASK": {
+				"type": "string",
+				"defaultValue": "TempPartner_T_I_20221127.txt"
+			},
+			"SOURCE_FILE_MODIFIED_THRESHOLD": {
+				"type": "int",
+				"defaultValue": 15
+			},
+			"SOURCE_DELETE_AFTER_COLLECT": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"SOURCE_COLLECT_FROM_SUBFOLDERS": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"SINK_TYPE": {
+				"type": "string",
+				"defaultValue": "ABS"
+			},
+			"SINK_STORAGE_ACCOUNT": {
+				"type": "string",
+				"defaultValue": "adfsa5214"
 			},
 			"SINK_AKV_SECRET_NAME": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "adfsa5214AccountKey"
+			},
+			"SINK_FILESHARE": {
+				"type": "string",
+				"defaultValue": "adf-temp"
+			},
+			"SINK_FILEPATH": {
+				"type": "string",
+				"defaultValue": "/WorkingDir"
+			},
+			"COPY_TYPE": {
+				"type": "string",
+				"defaultValue": "ARCHIVE"
 			}
 		},
 		"variables": {
