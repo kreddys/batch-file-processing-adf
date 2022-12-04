@@ -175,7 +175,7 @@
 							}
 						},
 						{
-							"name": "Filter Files",
+							"name": "Collect Files",
 							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
@@ -188,7 +188,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_FILTER_FILES",
+									"referenceName": "ADF_GEN_AFS_COLLECT",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,

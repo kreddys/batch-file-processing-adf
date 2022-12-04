@@ -1,5 +1,5 @@
 {
-	"name": "ADF_GEN_FILTER_FILES",
+	"name": "ADF_GEN_AFS_COLLECT",
 	"properties": {
 		"activities": [
 			{
@@ -7,7 +7,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "CheckFileName",
+						"activity": "Check FileName",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -16,19 +16,19 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@json(activity('CheckFileName').output.Response)",
+						"value": "@json(activity('Check FileName').output.Response)",
 						"type": "Expression"
 					},
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "Copy To Working Dir",
+							"name": "Copy To WorkingDir",
 							"type": "ExecutePipeline",
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
+									"referenceName": "ADF_GEN_COPY_EACH_FILE",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
@@ -82,7 +82,7 @@
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "Copy To Working Dir",
+									"activity": "Copy To WorkingDir",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -151,7 +151,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"url": {
-									"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{activity('Copy To Working Dir').output.pipelineRunId}/queryActivityruns?api-version=2018-06-01",
+									"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{activity('Copy To WorkingDir').output.pipelineRunId}/queryActivityruns?api-version=2018-06-01",
 									"type": "Expression"
 								},
 								"method": "POST",
@@ -182,7 +182,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
+									"referenceName": "ADF_GEN_COPY_EACH_FILE",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
@@ -208,7 +208,7 @@
 										"type": "Expression"
 									},
 									"SOURCE_DELETE_AFTER_COLLECT": {
-										"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
+										"value": "false",
 										"type": "Expression"
 									},
 									"SOURCE_COLLECT_FROM_SUBFOLDERS": {
@@ -235,7 +235,7 @@
 				}
 			},
 			{
-				"name": "CheckFileName",
+				"name": "Check FileName",
 				"type": "AzureFunctionActivity",
 				"dependsOn": [],
 				"policy": {
