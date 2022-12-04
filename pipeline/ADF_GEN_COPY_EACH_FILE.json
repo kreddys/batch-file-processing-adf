@@ -366,12 +366,10 @@
 				"type": "string"
 			},
 			"SINK_FILEPATH": {
-				"type": "string",
-				"defaultValue": "/WorkingDir"
+				"type": "string"
 			},
 			"COPY_TYPE": {
-				"type": "string",
-				"defaultValue": "ARCHIVE"
+				"type": "string"
 			}
 		},
 		"variables": {
