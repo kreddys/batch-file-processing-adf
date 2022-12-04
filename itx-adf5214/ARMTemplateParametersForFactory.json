@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "itx-adf5214"
 		},
+		"ADF_GEN_ABS_connectionString": {
+			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};"
+		},
 		"ADF_GEN_AFS_connectionString": {
 			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};"
 		},
@@ -13,9 +16,6 @@
 		},
 		"TEST_AFS_connectionString": {
 			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};"
-		},
-		"ADF_GEN_ABS_connectionString": {
-			"value": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};"
 		},
 		"ADF_GEN_AKV_properties_typeProperties_baseUrl": {
 			"value": "https://adf-gen-akv.vault.azure.net/"

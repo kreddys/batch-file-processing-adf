@@ -7,6 +7,11 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "itx-adf5214"
 		},
+		"ADF_GEN_ABS_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ADF_GEN_ABS'",
+			"defaultValue": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};"
+		},
 		"ADF_GEN_AFS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ADF_GEN_AFS'",
@@ -21,11 +26,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'TEST_AFS'",
 			"defaultValue": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccount};"
-		},
-		"ADF_GEN_ABS_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'ADF_GEN_ABS'",
-			"defaultValue": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};"
 		},
 		"ADF_GEN_AKV_properties_typeProperties_baseUrl": {
 			"type": "string",
@@ -125,6 +125,40 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"storageAccountName": {
+						"type": "string"
+					},
+					"storageAccountKeySecretName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ADF_GEN_ABS_connectionString')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "ADF_GEN_AKV",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": {
+							"value": "@linkedService().storageAccountKeySecretName",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_AKV')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ADF_GEN_AFS')]",
@@ -281,40 +315,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"storageAccountName": {
-						"type": "string"
-					},
-					"storageAccountKeySecretName": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureBlobStorage",
-				"typeProperties": {
-					"connectionString": "[parameters('ADF_GEN_ABS_connectionString')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "ADF_GEN_AKV",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": {
-							"value": "@linkedService().storageAccountKeySecretName",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_AKV')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/TEST_FUNCTION')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -383,6 +383,111 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_SINK')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADF_GEN_ABS",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"storageAccountName": {
+							"value": "@dataset().storageAccountName",
+							"type": "Expression"
+						},
+						"storageAccountKeySecretName": {
+							"value": "@dataset().storageAccountKeySecretName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"storageAccountName": {
+						"type": "string"
+					},
+					"storageAccountKeySecretName": {
+						"type": "string"
+					},
+					"container": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_ABS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_SOURCE')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADF_GEN_ABS",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"storageAccountName": {
+							"value": "@dataset().storageAccountName",
+							"type": "Expression"
+						},
+						"storageAccountKeySecretName": {
+							"value": "@dataset().storageAccountKeySecretName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"storageAccountName": {
+						"type": "string"
+					},
+					"storageAccountKeySecretName": {
+						"type": "string"
+					},
+					"container": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_ABS')]"
 			]
 		},
 		{
@@ -664,193 +769,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_SOURCE')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADF_GEN_ABS",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"storageAccountName": {
-							"value": "@dataset().storageAccountName",
-							"type": "Expression"
-						},
-						"storageAccountKeySecretName": {
-							"value": "@dataset().storageAccountKeySecretName",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"storageAccountName": {
-						"type": "string"
-					},
-					"storageAccountKeySecretName": {
-						"type": "string"
-					},
-					"container": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "GENERIC"
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"container": {
-							"value": "@dataset().container",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_ABS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_SINK')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADF_GEN_ABS",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"storageAccountName": {
-							"value": "@dataset().storageAccountName",
-							"type": "Expression"
-						},
-						"storageAccountKeySecretName": {
-							"value": "@dataset().storageAccountKeySecretName",
-							"type": "Expression"
-						}
-					}
-				},
-				"parameters": {
-					"storageAccountName": {
-						"type": "string"
-					},
-					"storageAccountKeySecretName": {
-						"type": "string"
-					},
-					"container": {
-						"type": "string"
-					},
-					"directory": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "GENERIC"
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"folderPath": {
-							"value": "@dataset().directory",
-							"type": "Expression"
-						},
-						"container": {
-							"value": "@dataset().container",
-							"type": "Expression"
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_ABS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/TEST_COPY')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copy",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureFileStorageReadSettings",
-									"recursive": false,
-									"wildcardFolderPath": "TEMPPARTNER/MBR/RawData",
-									"wildcardFileName": "TempPartner_T_I_*.txt",
-									"deleteFilesAfterCompletion": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
-							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureFileStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "TEST_AFS_SOURCE",
-								"type": "DatasetReference",
-								"parameters": {
-									"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
-									"akvSecretname": "adfsa5214AccountKey",
-									"storageAccount": "adfsa5214",
-									"fileShare": "adf-data"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "TEST_AFS_SINK",
-								"type": "DatasetReference",
-								"parameters": {
-									"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
-									"akvSecretname": "adfsa5214AccountKey",
-									"storageAccount": "adfsa5214",
-									"fileShare": "working",
-									"filePath": "WorkingDir"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "TEST"
-				},
-				"annotations": [],
-				"lastPublishTime": "2022-11-27T17:38:46Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/TEST_AFS_SOURCE')]",
-				"[concat(variables('factoryId'), '/datasets/TEST_AFS_SINK')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_EACH_FILE')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1070,7 +988,7 @@
 															"type": "Expression"
 														},
 														"directory": {
-															"value": "@pipeline().parameters.SINK_FILEPATH",
+															"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
 															"type": "Expression"
 														}
 													}
@@ -1166,7 +1084,7 @@
 															"type": "Expression"
 														},
 														"filePath": {
-															"value": "@pipeline().parameters.SINK_FILEPATH",
+															"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
 															"type": "Expression"
 														}
 													}
@@ -1224,12 +1142,10 @@
 						"type": "string"
 					},
 					"SINK_FILEPATH": {
-						"type": "string",
-						"defaultValue": "/WorkingDir"
+						"type": "string"
 					},
 					"COPY_TYPE": {
-						"type": "string",
-						"defaultValue": "ARCHIVE"
+						"type": "string"
 					}
 				},
 				"variables": {
@@ -1248,6 +1164,88 @@
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SINK')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SOURCE')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TEST_COPY')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureFileStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": "TEMPPARTNER/MBR/RawData",
+									"wildcardFileName": "TempPartner_T_I_*.txt",
+									"deleteFilesAfterCompletion": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureFileStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "TEST_AFS_SOURCE",
+								"type": "DatasetReference",
+								"parameters": {
+									"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
+									"akvSecretname": "adfsa5214AccountKey",
+									"storageAccount": "adfsa5214",
+									"fileShare": "adf-data"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "TEST_AFS_SINK",
+								"type": "DatasetReference",
+								"parameters": {
+									"akvBaseURL": "https://adf-gen-akv.vault.azure.net/",
+									"akvSecretname": "adfsa5214AccountKey",
+									"storageAccount": "adfsa5214",
+									"fileShare": "working",
+									"filePath": "WorkingDir"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "TEST"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-27T17:38:46Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/TEST_AFS_SOURCE')]",
+				"[concat(variables('factoryId'), '/datasets/TEST_AFS_SINK')]"
 			]
 		},
 		{
@@ -1579,7 +1577,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_RECEIPT_FILESYSTEM_TEMPPARTNER_MBR')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_RECEIPT_AFS_TEMPPARTNER_MBR')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
