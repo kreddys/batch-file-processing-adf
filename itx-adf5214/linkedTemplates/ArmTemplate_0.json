@@ -1089,7 +1089,7 @@
 												"type": "Expression"
 											},
 											"SOURCE_DELETE_AFTER_COLLECT": {
-												"value": "false",
+												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
 												"type": "Expression"
 											},
 											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
@@ -1097,18 +1097,18 @@
 												"type": "Expression"
 											},
 											"SINK_STORAGE_ACCOUNT": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSStorageAccount",
 												"type": "Expression"
 											},
 											"SINK_FILESHARE": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSArchiveFileShare",
 												"type": "Expression"
 											},
 											"SINK_FILEPATH": {
-												"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
 												"type": "Expression"
 											},
-											"COPY_TYPE": "WORKING_DIR"
+											"COPY_TYPE": "ARCHIVE"
 										}
 									}
 								}
