@@ -6,9 +6,9 @@
 				"type": "string",
 				"value": "https://adf-gen-akv.vault.azure.net/"
 			},
-			"CODELISTS_AFS_RECEIPT_TABLE": {
+			"CODELISTS_RECEIPT_AFS": {
 				"type": "string",
-				"value": "ReceiptAzureFileStorage"
+				"value": "ADFReceiptAFS"
 			},
 			"SA_KEY_SECRET_NAME": {
 				"type": "string",
