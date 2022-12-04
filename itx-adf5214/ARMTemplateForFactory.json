@@ -380,11 +380,11 @@
 										},
 										"waitOnCompletion": false,
 										"parameters": {
-											"ProducerFileLocation": {
+											"FileLocation": {
 												"value": "@activity('Get WokingDirFilePath').output.value[0].output.value",
 												"type": "Expression"
 											},
-											"ProducerFileName": {
+											"FileName": {
 												"value": "@item()",
 												"type": "Expression"
 											},
@@ -499,7 +499,20 @@
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
-										"parameters": {}
+										"parameters": {
+											"FileLocation": {
+												"value": "@pipeline().parameters.FileLocation",
+												"type": "Expression"
+											},
+											"FileName": {
+												"value": "@pipeline().parameters.FileName",
+												"type": "Expression"
+											},
+											"ConsumerName": {
+												"value": "@item().Consumer",
+												"type": "Expression"
+											}
+										}
 									}
 								}
 							]
@@ -511,10 +524,10 @@
 					"cancelAfter": {}
 				},
 				"parameters": {
-					"ProducerFileLocation": {
+					"FileLocation": {
 						"type": "string"
 					},
-					"ProducerFileName": {
+					"FileName": {
 						"type": "string"
 					},
 					"ConsumersList": {
@@ -948,6 +961,17 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
+				"parameters": {
+					"FileLocation": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					},
+					"ConsumerName": {
+						"type": "string"
+					}
+				},
 				"folder": {
 					"name": "GENERIC"
 				},
@@ -1150,7 +1174,7 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"atsTableName": {
-										"value": "@if(equals(variables('ADF_PROTOCOL'),'AFS'),\npipeline().globalParameters.CODELISTS_RECEIPT_AFS,'NA')",
+										"value": "@pipeline().globalParameters.CODELISTS_RECEIPT_AFS",
 										"type": "Expression"
 									},
 									"akvBaseURL": {
