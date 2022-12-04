@@ -13,7 +13,7 @@
 			}
 		],
 		"parameters": {
-			"FilePath": {
+			"FileLocation": {
 				"type": "string"
 			},
 			"FileName": {
