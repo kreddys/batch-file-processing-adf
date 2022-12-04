@@ -166,7 +166,7 @@
 								},
 								"method": "POST",
 								"body": {
-									"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\"\n}",
+									"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\",\n        \"filters\": [\n\t\t{\n\t\t\t\"operand\": \"ActivityName\",\n\t\t\t\"operator\": \"Equals\",\n\t\t\t\"values\": [\n\t\t\t\t\"Set SINK_FILE_PATH\"\n\t\t\t]\n\t\t}\n\t]\n}",
 									"type": "Expression"
 								},
 								"authentication": {
@@ -197,8 +197,13 @@
 								},
 								"waitOnCompletion": true,
 								"parameters": {
+									"SOURCE_TYPE": "ABS",
 									"SOURCE_STORAGE_ACCOUNT": {
 										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"SOURCE_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
 										"type": "Expression"
 									},
 									"SOURCE_FILESHARE": {
@@ -206,7 +211,7 @@
 										"type": "Expression"
 									},
 									"SOURCE_COLLECTION_DIR": {
-										"value": "@activity('Get WokingDirFilePath').output.value[1].output.value",
+										"value": "@activity('Get WokingDirFilePath').output.value[0].output.value",
 										"type": "Expression"
 									},
 									"SOURCE_FILEMASK": {
@@ -225,8 +230,13 @@
 										"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
 										"type": "Expression"
 									},
+									"SINK_TYPE": "AFS",
 									"SINK_STORAGE_ACCOUNT": {
 										"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSStorageAccount",
+										"type": "Expression"
+									},
+									"SINK_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
 										"type": "Expression"
 									},
 									"SINK_FILESHARE": {
@@ -237,17 +247,7 @@
 										"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
 										"type": "Expression"
 									},
-									"COPY_TYPE": "ARCHIVE",
-									"SOURCE_TYPE": "ABS",
-									"SINK_TYPE": "AFS",
-									"SOURCE_AKV_SECRET_NAME": {
-										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-										"type": "Expression"
-									},
-									"SINK_AKV_SECRET_NAME": {
-										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-										"type": "Expression"
-									}
+									"COPY_TYPE": "ARCHIVE"
 								}
 							}
 						}
