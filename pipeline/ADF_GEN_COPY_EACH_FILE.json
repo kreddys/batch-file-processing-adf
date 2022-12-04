@@ -88,7 +88,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"akvSecretname": {
-													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+													"value": "@pipeline().parameters.SOURCE_AKV_SECRET_NAME",
 													"type": "Expression"
 												},
 												"storageAccount": {
@@ -107,7 +107,10 @@
 											"referenceName": "ADF_GEN_AFS_SINK",
 											"type": "DatasetReference",
 											"parameters": {
-												"akvSecretname": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+												"akvSecretname": {
+													"value": "@pipeline().parameters.SINK_AKV_SECRET_NAME",
+													"type": "Expression"
+												},
 												"storageAccount": {
 													"value": "@pipeline().parameters.SINK_STORAGE_ACCOUNT",
 													"type": "Expression"
@@ -170,7 +173,7 @@
 										"sink": {
 											"type": "BinarySink",
 											"storeSettings": {
-												"type": "AzureFileStorageWriteSettings"
+												"type": "AzureBlobStorageWriteSettings"
 											}
 										},
 										"enableStaging": false
@@ -181,7 +184,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"akvSecretname": {
-													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+													"value": "@pipeline().parameters.SOURCE_AKV_SECRET_NAME",
 													"type": "Expression"
 												},
 												"storageAccount": {
@@ -197,20 +200,23 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "ADF_GEN_AFS_SINK",
+											"referenceName": "ADF_GEN_ABS_SINK",
 											"type": "DatasetReference",
 											"parameters": {
-												"akvSecretname": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-												"storageAccount": {
+												"storageAccountName": {
 													"value": "@pipeline().parameters.SINK_STORAGE_ACCOUNT",
 													"type": "Expression"
 												},
-												"fileShare": {
+												"storageAccountKeySecretName": {
+													"value": "@pipeline().parameters.SINK_AKV_SECRET_NAME",
+													"type": "Expression"
+												},
+												"container": {
 													"value": "@pipeline().parameters.SINK_FILESHARE",
 													"type": "Expression"
 												},
-												"filePath": {
-													"value": "@if(equals(pipeline().parameters.COPY_TYPE,'WORKING_DIR' ),concat(pipeline().parameters.SINK_FILEPATH,pipeline().RunId) , pipeline().parameters.SINK_FILEPATH)",
+												"directory": {
+													"value": "@pipeline().parameters.SINK_FILEPATH",
 													"type": "Expression"
 												}
 											}
@@ -261,6 +267,12 @@
 				"type": "string"
 			},
 			"SINK_TYPE": {
+				"type": "string"
+			},
+			"SOURCE_AKV_SECRET_NAME": {
+				"type": "string"
+			},
+			"SINK_AKV_SECRET_NAME": {
 				"type": "string"
 			}
 		},
