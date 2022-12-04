@@ -249,6 +249,14 @@
 													"value": "@pipeline().parameters.SOURCE_COLLECT_FROM_SUBFOLDERS",
 													"type": "Expression"
 												},
+												"wildcardFolderPath": {
+													"value": "@pipeline().parameters.SOURCE_COLLECTION_DIR",
+													"type": "Expression"
+												},
+												"wildcardFileName": {
+													"value": "@pipeline().parameters.SOURCE_FILEMASK",
+													"type": "Expression"
+												},
 												"deleteFilesAfterCompletion": {
 													"value": "@pipeline().parameters.SOURCE_DELETE_AFTER_COLLECT",
 													"type": "Expression"
@@ -289,7 +297,25 @@
 									"outputs": [
 										{
 											"referenceName": "ADF_GEN_AFS_SINK",
-											"type": "DatasetReference"
+											"type": "DatasetReference",
+											"parameters": {
+												"akvSecretname": {
+													"value": "@pipeline().parameters.SINK_AKV_SECRET_NAME",
+													"type": "Expression"
+												},
+												"storageAccount": {
+													"value": "@pipeline().parameters.SINK_STORAGE_ACCOUNT",
+													"type": "Expression"
+												},
+												"fileShare": {
+													"value": "@pipeline().parameters.SINK_FILESHARE",
+													"type": "Expression"
+												},
+												"filePath": {
+													"value": "@pipeline().parameters.SINK_FILEPATH",
+													"type": "Expression"
+												}
+											}
 										}
 									]
 								}
