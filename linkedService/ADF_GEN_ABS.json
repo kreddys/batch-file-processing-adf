@@ -1,0 +1,29 @@
+{
+	"name": "ADF_GEN_ABS",
+	"properties": {
+		"parameters": {
+			"storageAccountName": {
+				"type": "string"
+			},
+			"storageAccountKeySecretName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=@{linkedService().storageAccountName};",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "ADF_GEN_AKV",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": {
+					"value": "@linkedService().storageAccountKeySecretName",
+					"type": "Expression"
+				}
+			}
+		}
+	}
+}
