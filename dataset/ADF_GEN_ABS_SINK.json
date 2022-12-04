@@ -2,34 +2,30 @@
 	"name": "ADF_GEN_ABS_SINK",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ADF_GEN_AFS",
+			"referenceName": "ADF_GEN_ABS",
 			"type": "LinkedServiceReference",
 			"parameters": {
-				"akvSecretname": {
-					"value": "@dataset().akvSecretname",
+				"storageAccountName": {
+					"value": "@dataset().storageAccountName",
 					"type": "Expression"
 				},
-				"storageAccount": {
-					"value": "@dataset().storageAccount",
-					"type": "Expression"
-				},
-				"fileShare": {
-					"value": "@dataset().fileShare",
+				"storageAccountKeySecretName": {
+					"value": "@dataset().storageAccountKeySecretName",
 					"type": "Expression"
 				}
 			}
 		},
 		"parameters": {
-			"akvSecretname": {
+			"storageAccountName": {
 				"type": "string"
 			},
-			"storageAccount": {
+			"storageAccountKeySecretName": {
 				"type": "string"
 			},
-			"fileShare": {
+			"container": {
 				"type": "string"
 			},
-			"filePath": {
+			"directory": {
 				"type": "string"
 			}
 		},
@@ -40,9 +36,13 @@
 		"type": "Binary",
 		"typeProperties": {
 			"location": {
-				"type": "AzureFileStorageLocation",
+				"type": "AzureBlobStorageLocation",
 				"folderPath": {
-					"value": "@dataset().filePath",
+					"value": "@dataset().directory",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().container",
 					"type": "Expression"
 				}
 			}
