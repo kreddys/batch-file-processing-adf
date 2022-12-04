@@ -3,9 +3,9 @@
 		"type": "string",
 		"value": "https://adf-gen-akv.vault.azure.net/"
 	},
-	"CODELISTS_AFS_RECEIPT_TABLE": {
+	"CODELISTS_RECEIPT_AFS": {
 		"type": "string",
-		"value": "ReceiptAzureFileStorage"
+		"value": "ADFReceiptAFS"
 	},
 	"SA_KEY_SECRET_NAME": {
 		"type": "string",
@@ -26,10 +26,6 @@
 	"WORKINGDATA_ROOT_DIR": {
 		"type": "string",
 		"value": "WorkingDir/"
-	},
-	"CODELISTS_ARCHIVE_PRODUCER_TABLE": {
-		"type": "string",
-		"value": "ArchiveProducer"
 	},
 	"REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME": {
 		"type": "string",
@@ -58,5 +54,13 @@
 	"WORKING_DATA_PROTOCOL": {
 		"type": "string",
 		"value": "ABS"
+	},
+	"CODELISTS_ARCHIVE_PRODUCER": {
+		"type": "string",
+		"value": "ADFArchvieProducer"
+	},
+	"CODELISTS_CONSUMER_LOOKUP": {
+		"type": "string",
+		"value": "ADFConsumerLookup"
 	}
 }
