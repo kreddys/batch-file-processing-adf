@@ -472,6 +472,65 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_CONSUMER_LOOKUP')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach Consumer",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.ConsumersList",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Execute Translate",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ADF_GEN_TRANSLATE",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"ProducerFileLocation": {
+						"type": "string"
+					},
+					"ProducerFileName": {
+						"type": "string"
+					},
+					"ConsumersList": {
+						"type": "array"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_TRANSLATE')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_FILE')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -868,6 +927,33 @@
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SINK')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SOURCE')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_TRANSLATE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ADF_RECEIPT_AFS_TEMPPARTNER_MBR')]",
@@ -1924,44 +2010,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_AKV')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_CONSUMER_LOOKUP')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Wait1",
-						"type": "Wait",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 1
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"ProducerFileLocation": {
-						"type": "string"
-					},
-					"ProducerFileName": {
-						"type": "string"
-					},
-					"ConsumersList": {
-						"type": "array"
-					}
-				},
-				"folder": {
-					"name": "GENERIC"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
 		}
 	]
 }
