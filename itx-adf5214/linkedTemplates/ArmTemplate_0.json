@@ -1742,6 +1742,10 @@
 											"ReceiptConfig": {
 												"value": "@item()",
 												"type": "Expression"
+											},
+											"Protocol": {
+												"value": "@variables('ADF_PROTOCOL')",
+												"type": "Expression"
 											}
 										}
 									}
