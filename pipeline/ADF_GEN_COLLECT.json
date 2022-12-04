@@ -33,8 +33,16 @@
 								},
 								"waitOnCompletion": true,
 								"parameters": {
+									"SOURCE_TYPE": {
+										"value": "@pipeline().parameters.Protocol",
+										"type": "Expression"
+									},
 									"SOURCE_STORAGE_ACCOUNT": {
 										"value": "@pipeline().parameters.ReceiptConfig.StorageAccount",
+										"type": "Expression"
+									},
+									"SOURCE_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
 										"type": "Expression"
 									},
 									"SOURCE_FILESHARE": {
@@ -61,8 +69,16 @@
 										"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
 										"type": "Expression"
 									},
+									"SINK_TYPE": {
+										"value": "@pipeline().globalParameters.WORKING_DATA_PROTOCOL",
+										"type": "Expression"
+									},
 									"SINK_STORAGE_ACCOUNT": {
 										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"SINK_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
 										"type": "Expression"
 									},
 									"SINK_FILESHARE": {
@@ -73,17 +89,7 @@
 										"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
 										"type": "Expression"
 									},
-									"COPY_TYPE": "WORKING_DIR",
-									"SOURCE_TYPE": "AFS",
-									"SINK_TYPE": "ABS",
-									"SOURCE_AKV_SECRET_NAME": {
-										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-										"type": "Expression"
-									},
-									"SINK_AKV_SECRET_NAME": {
-										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-										"type": "Expression"
-									}
+									"COPY_TYPE": "WORKING_DIR"
 								}
 							}
 						},
@@ -197,7 +203,10 @@
 								},
 								"waitOnCompletion": true,
 								"parameters": {
-									"SOURCE_TYPE": "ABS",
+									"SOURCE_TYPE": {
+										"value": "@pipeline().globalParameters.WORKING_DATA_PROTOCOL",
+										"type": "Expression"
+									},
 									"SOURCE_STORAGE_ACCOUNT": {
 										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
 										"type": "Expression"
@@ -230,9 +239,12 @@
 										"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
 										"type": "Expression"
 									},
-									"SINK_TYPE": "AFS",
+									"SINK_TYPE": {
+										"value": "@activity('Lookup ArchiveProducer').output.firstRow.Type",
+										"type": "Expression"
+									},
 									"SINK_STORAGE_ACCOUNT": {
-										"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSStorageAccount",
+										"value": "@activity('Lookup ArchiveProducer').output.firstRow.StorageAccount",
 										"type": "Expression"
 									},
 									"SINK_AKV_SECRET_NAME": {
@@ -240,11 +252,11 @@
 										"type": "Expression"
 									},
 									"SINK_FILESHARE": {
-										"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSArchiveFileShare",
+										"value": "@activity('Lookup ArchiveProducer').output.firstRow.FileShare",
 										"type": "Expression"
 									},
 									"SINK_FILEPATH": {
-										"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
+										"value": "@activity('Lookup ArchiveProducer').output.firstRow.Directory",
 										"type": "Expression"
 									},
 									"COPY_TYPE": "ARCHIVE"
@@ -299,6 +311,9 @@
 			},
 			"ReceiptConfig": {
 				"type": "object"
+			},
+			"Protocol": {
+				"type": "string"
 			}
 		},
 		"variables": {
