@@ -93,7 +93,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"FileList": {
-										"value": "@activity('Get FileList Output').output.childItems",
+										"value": "@activity('Get FileList Output').output.value[0].output.childItems",
 										"type": "Expression"
 									},
 									"ReceiptConfig": {
@@ -133,7 +133,7 @@
 								},
 								"method": "POST",
 								"body": {
-									"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\",\n        \"filters\": [\n\t\t{\n\t\t\t\"operand\": \"ActivityName\",\n\t\t\t\"operator\": \"Equals\",\n\t\t\t\"values\": [\n\t\t\t\t\"GetFileListAFS\"\n\t\t\t]\n\t\t}\n\t]\n}",
+									"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\",\n        \"filters\": [\n\t\t{\n\t\t\t\"operand\": \"ActivityName\",\n\t\t\t\"operator\": \"Equals\",\n\t\t\t\"values\": [\n\t\t\t\t\"GetFileList@{variables('ADF_PROTOCOL')}\"\n\t\t\t]\n\t\t}\n\t]\n}",
 									"type": "Expression"
 								},
 								"authentication": {
