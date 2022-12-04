@@ -1,5 +1,5 @@
 {
-	"name": "ADF_GEN_AFS_COLLECT",
+	"name": "ADF_GEN_COLLECT",
 	"properties": {
 		"activities": [
 			{
@@ -28,7 +28,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_COPY_EACH_FILE",
+									"referenceName": "ADF_GEN_COPY_FILE",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,
@@ -192,7 +192,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"pipeline": {
-									"referenceName": "ADF_GEN_COPY_EACH_FILE",
+									"referenceName": "ADF_GEN_COPY_FILE",
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true,

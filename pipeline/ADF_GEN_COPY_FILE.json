@@ -1,5 +1,5 @@
 {
-	"name": "ADF_GEN_COPY_EACH_FILE",
+	"name": "ADF_GEN_COPY_FILE",
 	"properties": {
 		"activities": [
 			{
