@@ -934,7 +934,7 @@
 												"type": "Expression"
 											},
 											"SOURCE_DELETE_AFTER_COLLECT": {
-												"value": "false",
+												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
 												"type": "Expression"
 											},
 											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
@@ -1037,8 +1037,8 @@
 										"method": "POST",
 										"headers": {},
 										"body": {
-											"lastUpdatedAfter": "2018-06-16T00:36:44.3345758Z",
-											"lastUpdatedBefore": "2023-06-16T00:49:48.3686473Z"
+											"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\"\n}",
+											"type": "Expression"
 										},
 										"authentication": {
 											"type": "MSI",
@@ -1161,47 +1161,10 @@
 				},
 				"parameters": {
 					"FileList": {
-						"type": "array",
-						"defaultValue": [
-							{
-								"name": "Archive",
-								"type": "Folder"
-							},
-							{
-								"name": "TempPartner_F_I_20221127.txt",
-								"type": "File"
-							},
-							{
-								"name": "TempPartner_T_I_20221127.txt",
-								"type": "File"
-							},
-							{
-								"name": "TempPartner_T_I_20221128.txt",
-								"type": "File"
-							}
-						]
+						"type": "array"
 					},
 					"ReceiptConfig": {
-						"type": "object",
-						"defaultValue": {
-							"PartitionKey": "",
-							"RowKey": "2",
-							"Timestamp": "2022-11-29T00:55:29.3211264Z",
-							"CollectFromSubFolders": false,
-							"CollectZeroByteFiles": false,
-							"CollectionDirectory": "/TEMPPARTNER/MBR/RawData",
-							"ConfigID": 2,
-							"DeleteAfterCollect": true,
-							"Description": "Test Config2",
-							"FileMask": "TempPartner_T_I_.+.txt$",
-							"FileModifiedThreshold": 15,
-							"FileShare": "adf-data",
-							"PreReceiptProcess": "NA",
-							"Producer": "TEMPPARTNER",
-							"StorageAccount": "adfsa5214",
-							"TransactionType": "MBR",
-							"UnProcessedDirectory": "/TempPartner/MBR/RawData/UnProcessed"
-						}
+						"type": "object"
 					}
 				},
 				"variables": {
