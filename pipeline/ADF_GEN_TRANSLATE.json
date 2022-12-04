@@ -12,6 +12,17 @@
 				}
 			}
 		],
+		"parameters": {
+			"FilePath": {
+				"type": "string"
+			},
+			"FileName": {
+				"type": "string"
+			},
+			"ConsumerName": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "GENERIC"
 		},
