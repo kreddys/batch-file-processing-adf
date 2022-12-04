@@ -859,59 +859,11 @@
 							},
 							"activities": [
 								{
-									"name": "Get File List",
-									"type": "GetMetadata",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"dataset": {
-											"referenceName": "ADF_GEN_AFS_SINK",
-											"type": "DatasetReference",
-											"parameters": {
-												"akvSecretname": {
-													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-													"type": "Expression"
-												},
-												"storageAccount": {
-													"value": "@item().StorageAccount",
-													"type": "Expression"
-												},
-												"fileShare": {
-													"value": "@item().FileShare",
-													"type": "Expression"
-												},
-												"filePath": {
-													"value": "@item().CollectionDirectory",
-													"type": "Expression"
-												}
-											}
-										},
-										"fieldList": [
-											"childItems"
-										],
-										"storeSettings": {
-											"type": "AzureFileStorageReadSettings",
-											"recursive": true,
-											"enablePartitionDiscovery": false
-										},
-										"formatSettings": {
-											"type": "BinaryReadSettings"
-										}
-									}
-								},
-								{
 									"name": "Collect Files",
 									"type": "ExecutePipeline",
 									"dependsOn": [
 										{
-											"activity": "Get File List",
+											"activity": "Get FileList Output",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -926,7 +878,7 @@
 										"waitOnCompletion": true,
 										"parameters": {
 											"FileList": {
-												"value": "@activity('Get File List').output.childItems",
+												"value": "@activity('Get FileList Output').output.childItems",
 												"type": "Expression"
 											},
 											"ReceiptConfig": {
@@ -938,6 +890,112 @@
 												"type": "Expression"
 											}
 										}
+									}
+								},
+								{
+									"name": "Get FileList Output",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Check Protocol",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{pipeline().RunId}/queryActivityruns?api-version=2018-06-01",
+											"type": "Expression"
+										},
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\",\n        \"filters\": [\n\t\t{\n\t\t\t\"operand\": \"ActivityName\",\n\t\t\t\"operator\": \"Equals\",\n\t\t\t\"values\": [\n\t\t\t\t\"GetFileListAFS\"\n\t\t\t]\n\t\t}\n\t]\n}",
+											"type": "Expression"
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": {
+												"value": "@pipeline().globalParameters.RESOURCE",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Check Protocol",
+									"type": "Switch",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"on": {
+											"value": "@variables('ADF_PROTOCOL')",
+											"type": "Expression"
+										},
+										"cases": [
+											{
+												"value": "AFS",
+												"activities": [
+													{
+														"name": "GetFileListAFS",
+														"type": "GetMetadata",
+														"dependsOn": [],
+														"policy": {
+															"timeout": "0.12:00:00",
+															"retry": 0,
+															"retryIntervalInSeconds": 30,
+															"secureOutput": false,
+															"secureInput": false
+														},
+														"userProperties": [],
+														"typeProperties": {
+															"dataset": {
+																"referenceName": "ADF_GEN_AFS_SINK",
+																"type": "DatasetReference",
+																"parameters": {
+																	"akvSecretname": {
+																		"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+																		"type": "Expression"
+																	},
+																	"storageAccount": {
+																		"value": "@item().StorageAccount",
+																		"type": "Expression"
+																	},
+																	"fileShare": {
+																		"value": "@item().FileShare",
+																		"type": "Expression"
+																	},
+																	"filePath": {
+																		"value": "@item().CollectionDirectory",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"fieldList": [
+																"childItems"
+															],
+															"storeSettings": {
+																"type": "AzureFileStorageReadSettings",
+																"recursive": true,
+																"enablePartitionDiscovery": false
+															},
+															"formatSettings": {
+																"type": "BinaryReadSettings"
+															}
+														}
+													}
+												]
+											}
+										]
 									}
 								}
 							]
@@ -1023,8 +1081,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]",
-				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COLLECT')]"
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COLLECT')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]"
 			]
 		},
 		{
