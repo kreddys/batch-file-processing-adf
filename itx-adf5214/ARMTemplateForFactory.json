@@ -36,7 +36,315 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_AFS_TO_AFS')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_AFS_COLLECT')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach File",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Check FileName",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@json(activity('Check FileName').output.Response)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"activities": [
+								{
+									"name": "Copy To WorkingDir",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ADF_GEN_COPY_EACH_FILE",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SOURCE_STORAGE_ACCOUNT": {
+												"value": "@pipeline().parameters.ReceiptConfig.StorageAccount",
+												"type": "Expression"
+											},
+											"SOURCE_FILESHARE": {
+												"value": "@pipeline().parameters.ReceiptConfig.FileShare",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECTION_DIR": {
+												"value": "@pipeline().parameters.ReceiptConfig.CollectionDirectory",
+												"type": "Expression"
+											},
+											"SOURCE_FILEMASK": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"SOURCE_FILE_MODIFIED_THRESHOLD": {
+												"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
+												"type": "Expression"
+											},
+											"SOURCE_DELETE_AFTER_COLLECT": {
+												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
+												"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
+												"type": "Expression"
+											},
+											"SINK_STORAGE_ACCOUNT": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+												"type": "Expression"
+											},
+											"SINK_FILESHARE": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+												"type": "Expression"
+											},
+											"SINK_FILEPATH": {
+												"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
+												"type": "Expression"
+											},
+											"COPY_TYPE": "WORKING_DIR"
+										}
+									}
+								},
+								{
+									"name": "Lookup ArchiveProducer",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Copy To WorkingDir",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureTableSource",
+											"azureTableSourceQuery": {
+												"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ',pipeline().parameters.ReceiptConfig.ConfigID,'')",
+												"type": "Expression"
+											},
+											"azureTableSourceIgnoreTableNotFound": false
+										},
+										"dataset": {
+											"referenceName": "ADF_GEN_ATS",
+											"type": "DatasetReference",
+											"parameters": {
+												"atsTableName": {
+													"value": "@pipeline().globalParameters.CODELISTS_ARCHIVE_PRODUCER_TABLE",
+													"type": "Expression"
+												},
+												"akvBaseURL": {
+													"value": "@pipeline().globalParameters.AKV_BASE_URL",
+													"type": "Expression"
+												},
+												"atsStorageAccountKeySecretName": {
+													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+													"type": "Expression"
+												},
+												"atsStorageAccountName": {
+													"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+													"type": "Expression"
+												}
+											}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "Get WokingDirFilePath",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Lookup ArchiveProducer",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{activity('Copy To WorkingDir').output.pipelineRunId}/queryActivityruns?api-version=2018-06-01",
+											"type": "Expression"
+										},
+										"method": "POST",
+										"headers": {},
+										"body": {
+											"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\"\n}",
+											"type": "Expression"
+										},
+										"authentication": {
+											"type": "MSI",
+											"resource": {
+												"value": "@pipeline().globalParameters.RESOURCE",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Copy To Archive",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Get WokingDirFilePath",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ADF_GEN_COPY_EACH_FILE",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"SOURCE_STORAGE_ACCOUNT": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+												"type": "Expression"
+											},
+											"SOURCE_FILESHARE": {
+												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECTION_DIR": {
+												"value": "@activity('Get WokingDirFilePath').output.value[1].output.value",
+												"type": "Expression"
+											},
+											"SOURCE_FILEMASK": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"SOURCE_FILE_MODIFIED_THRESHOLD": {
+												"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
+												"type": "Expression"
+											},
+											"SOURCE_DELETE_AFTER_COLLECT": {
+												"value": "false",
+												"type": "Expression"
+											},
+											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
+												"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
+												"type": "Expression"
+											},
+											"SINK_STORAGE_ACCOUNT": {
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSStorageAccount",
+												"type": "Expression"
+											},
+											"SINK_FILESHARE": {
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSArchiveFileShare",
+												"type": "Expression"
+											},
+											"SINK_FILEPATH": {
+												"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
+												"type": "Expression"
+											},
+											"COPY_TYPE": "ARCHIVE"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Check FileName",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": {
+								"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_NAME",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@json(concat('{\"files\":',string(pipeline().parameters.FileList),',\"pattern\": \"',string(pipeline().parameters.ReceiptConfig.FileMask),'\"'))",
+								"type": "Expression"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "ADF_GEN_FUNCTION",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"functionAppURL": {
+									"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_APP_URL",
+									"type": "Expression"
+								},
+								"secretName": {
+									"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"FileList": {
+						"type": "array"
+					},
+					"ReceiptConfig": {
+						"type": "object"
+					}
+				},
+				"variables": {
+					"SINK_FILE_PATH": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-02T01:16:22Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]",
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_EACH_FILE')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_EACH_FILE')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -203,314 +511,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SOURCE')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_FILTER_FILES')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "ForEach File",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "CheckFileName",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@json(activity('CheckFileName').output.Response)",
-								"type": "Expression"
-							},
-							"isSequential": false,
-							"activities": [
-								{
-									"name": "Copy To Working Dir",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"SOURCE_STORAGE_ACCOUNT": {
-												"value": "@pipeline().parameters.ReceiptConfig.StorageAccount",
-												"type": "Expression"
-											},
-											"SOURCE_FILESHARE": {
-												"value": "@pipeline().parameters.ReceiptConfig.FileShare",
-												"type": "Expression"
-											},
-											"SOURCE_COLLECTION_DIR": {
-												"value": "@pipeline().parameters.ReceiptConfig.CollectionDirectory",
-												"type": "Expression"
-											},
-											"SOURCE_FILEMASK": {
-												"value": "@item()",
-												"type": "Expression"
-											},
-											"SOURCE_FILE_MODIFIED_THRESHOLD": {
-												"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
-												"type": "Expression"
-											},
-											"SOURCE_DELETE_AFTER_COLLECT": {
-												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
-												"type": "Expression"
-											},
-											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
-												"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
-												"type": "Expression"
-											},
-											"SINK_STORAGE_ACCOUNT": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
-												"type": "Expression"
-											},
-											"SINK_FILESHARE": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
-												"type": "Expression"
-											},
-											"SINK_FILEPATH": {
-												"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
-												"type": "Expression"
-											},
-											"COPY_TYPE": "WORKING_DIR"
-										}
-									}
-								},
-								{
-									"name": "Lookup ArchiveProducer",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Copy To Working Dir",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureTableSource",
-											"azureTableSourceQuery": {
-												"value": "@concat('Producer eq ''',pipeline().parameters.ReceiptConfig.Producer,''' and TransactionType eq ''',pipeline().parameters.ReceiptConfig.TransactionType,''' and ConfigId eq ',pipeline().parameters.ReceiptConfig.ConfigID,'')",
-												"type": "Expression"
-											},
-											"azureTableSourceIgnoreTableNotFound": false
-										},
-										"dataset": {
-											"referenceName": "ADF_GEN_ATS",
-											"type": "DatasetReference",
-											"parameters": {
-												"atsTableName": {
-													"value": "@pipeline().globalParameters.CODELISTS_ARCHIVE_PRODUCER_TABLE",
-													"type": "Expression"
-												},
-												"akvBaseURL": {
-													"value": "@pipeline().globalParameters.AKV_BASE_URL",
-													"type": "Expression"
-												},
-												"atsStorageAccountKeySecretName": {
-													"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-													"type": "Expression"
-												},
-												"atsStorageAccountName": {
-													"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
-													"type": "Expression"
-												}
-											}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "Get WokingDirFilePath",
-									"type": "WebActivity",
-									"dependsOn": [
-										{
-											"activity": "Lookup ArchiveProducer",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"url": {
-											"value": "https://management.azure.com/subscriptions/@{pipeline().globalParameters.SUBSCRIPTION_ID}/resourceGroups/@{pipeline().globalParameters.RESOURCE_GROUP_NAME}/providers/Microsoft.DataFactory/factories/@{pipeline().DataFactory}/pipelineruns/@{activity('Copy To Working Dir').output.pipelineRunId}/queryActivityruns?api-version=2018-06-01",
-											"type": "Expression"
-										},
-										"method": "POST",
-										"headers": {},
-										"body": {
-											"value": "{\n    \"lastUpdatedAfter\":\"\",\n    \"lastUpdatedBefore\":\"@{utcNow()}\"\n}",
-											"type": "Expression"
-										},
-										"authentication": {
-											"type": "MSI",
-											"resource": {
-												"value": "@pipeline().globalParameters.RESOURCE",
-												"type": "Expression"
-											}
-										}
-									}
-								},
-								{
-									"name": "Copy To Archive",
-									"type": "ExecutePipeline",
-									"dependsOn": [
-										{
-											"activity": "Get WokingDirFilePath",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "ADF_GEN_COPY_AFS_TO_AFS",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {
-											"SOURCE_STORAGE_ACCOUNT": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
-												"type": "Expression"
-											},
-											"SOURCE_FILESHARE": {
-												"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
-												"type": "Expression"
-											},
-											"SOURCE_COLLECTION_DIR": {
-												"value": "@activity('Get WokingDirFilePath').output.value[1].output.value",
-												"type": "Expression"
-											},
-											"SOURCE_FILEMASK": {
-												"value": "@item()",
-												"type": "Expression"
-											},
-											"SOURCE_FILE_MODIFIED_THRESHOLD": {
-												"value": "@pipeline().parameters.ReceiptConfig.FileModifiedThreshold",
-												"type": "Expression"
-											},
-											"SOURCE_DELETE_AFTER_COLLECT": {
-												"value": "@pipeline().parameters.ReceiptConfig.DeleteAfterCollect",
-												"type": "Expression"
-											},
-											"SOURCE_COLLECT_FROM_SUBFOLDERS": {
-												"value": "@pipeline().parameters.ReceiptConfig.CollectFromSubFolders",
-												"type": "Expression"
-											},
-											"SINK_STORAGE_ACCOUNT": {
-												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSStorageAccount",
-												"type": "Expression"
-											},
-											"SINK_FILESHARE": {
-												"value": "@activity('Lookup ArchiveProducer').output.firstRow.AFSArchiveFileShare",
-												"type": "Expression"
-											},
-											"SINK_FILEPATH": {
-												"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
-												"type": "Expression"
-											},
-											"COPY_TYPE": "ARCHIVE"
-										}
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "CheckFileName",
-						"type": "AzureFunctionActivity",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"functionName": {
-								"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_NAME",
-								"type": "Expression"
-							},
-							"method": "POST",
-							"headers": {},
-							"body": {
-								"value": "@json(concat('{\"files\":',string(pipeline().parameters.FileList),',\"pattern\": \"',string(pipeline().parameters.ReceiptConfig.FileMask),'\"'))",
-								"type": "Expression"
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "ADF_GEN_FUNCTION",
-							"type": "LinkedServiceReference",
-							"parameters": {
-								"functionAppURL": {
-									"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_APP_URL",
-									"type": "Expression"
-								},
-								"secretName": {
-									"value": "@pipeline().globalParameters.REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"FileList": {
-						"type": "array"
-					},
-					"ReceiptConfig": {
-						"type": "object"
-					}
-				},
-				"variables": {
-					"SINK_FILE_PATH": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "GENERIC"
-				},
-				"annotations": [],
-				"lastPublishTime": "2022-12-02T01:16:22Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_AFS_TO_AFS')]",
-				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
 			]
 		},
 		{
@@ -692,7 +692,7 @@
 									}
 								},
 								{
-									"name": "Filter Files",
+									"name": "Collect Files",
 									"type": "ExecutePipeline",
 									"dependsOn": [
 										{
@@ -705,7 +705,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "ADF_GEN_FILTER_FILES",
+											"referenceName": "ADF_GEN_AFS_COLLECT",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -752,7 +752,7 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_FILTER_FILES')]"
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_AFS_COLLECT')]"
 			]
 		},
 		{
