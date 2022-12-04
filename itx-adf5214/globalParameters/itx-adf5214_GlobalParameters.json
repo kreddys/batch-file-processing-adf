@@ -57,7 +57,7 @@
 	},
 	"CODELISTS_ARCHIVE_PRODUCER": {
 		"type": "string",
-		"value": "ADFArchvieProducer"
+		"value": "ADFArchiveProducer"
 	},
 	"CODELISTS_CONSUMER_LOOKUP": {
 		"type": "string",
