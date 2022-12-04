@@ -31,10 +31,10 @@
 			}
 		],
 		"parameters": {
-			"ProducerFileLocation": {
+			"FileLocation": {
 				"type": "string"
 			},
-			"ProducerFileName": {
+			"FileName": {
 				"type": "string"
 			},
 			"ConsumersList": {

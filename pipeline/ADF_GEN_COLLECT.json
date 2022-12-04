@@ -335,11 +335,11 @@
 								},
 								"waitOnCompletion": false,
 								"parameters": {
-									"ProducerFileLocation": {
+									"FileLocation": {
 										"value": "@activity('Get WokingDirFilePath').output.value[0].output.value",
 										"type": "Expression"
 									},
-									"ProducerFileName": {
+									"FileName": {
 										"value": "@item()",
 										"type": "Expression"
 									},
