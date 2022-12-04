@@ -344,7 +344,7 @@
 										"type": "Expression"
 									},
 									"ConsumersList": {
-										"value": "@activity('Lookup Consumers').output",
+										"value": "@activity('Lookup Consumers').output.value",
 										"type": "Expression"
 									}
 								}
