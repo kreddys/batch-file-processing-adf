@@ -73,7 +73,17 @@
 										"value": "@concat(pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline()?.TriggeredByPipelineRunId,'/')",
 										"type": "Expression"
 									},
-									"COPY_TYPE": "WORKING_DIR"
+									"COPY_TYPE": "WORKING_DIR",
+									"SOURCE_TYPE": "AFS",
+									"SINK_TYPE": "ABS",
+									"SOURCE_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"SINK_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									}
 								}
 							}
 						},
@@ -227,7 +237,17 @@
 										"value": "@activity('Lookup ArchiveProducer').output.firstRow.ArchiveDirectory",
 										"type": "Expression"
 									},
-									"COPY_TYPE": "ARCHIVE"
+									"COPY_TYPE": "ARCHIVE",
+									"SOURCE_TYPE": "ABS",
+									"SINK_TYPE": "AFS",
+									"SOURCE_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"SINK_AKV_SECRET_NAME": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									}
 								}
 							}
 						}

@@ -224,6 +224,76 @@
 									]
 								}
 							]
+						},
+						{
+							"value": "ABS_AFS",
+							"activities": [
+								{
+									"name": "Copy ABS_AFS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "BinarySource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": {
+													"value": "@pipeline().parameters.SOURCE_COLLECT_FROM_SUBFOLDERS",
+													"type": "Expression"
+												},
+												"deleteFilesAfterCompletion": {
+													"value": "@pipeline().parameters.SOURCE_DELETE_AFTER_COLLECT",
+													"type": "Expression"
+												}
+											},
+											"formatSettings": {
+												"type": "BinaryReadSettings"
+											}
+										},
+										"sink": {
+											"type": "BinarySink",
+											"storeSettings": {
+												"type": "AzureFileStorageWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ADF_GEN_ABS_SOURCE",
+											"type": "DatasetReference",
+											"parameters": {
+												"storageAccountName": {
+													"value": "@pipeline().parameters.SOURCE_STORAGE_ACCOUNT",
+													"type": "Expression"
+												},
+												"storageAccountKeySecretName": {
+													"value": "@pipeline().parameters.SOURCE_AKV_SECRET_NAME",
+													"type": "Expression"
+												},
+												"container": {
+													"value": "@pipeline().parameters.SOURCE_FILESHARE",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ADF_GEN_AFS_SINK",
+											"type": "DatasetReference"
+										}
+									]
+								}
+							]
 						}
 					]
 				}
@@ -231,56 +301,43 @@
 		],
 		"parameters": {
 			"SOURCE_TYPE": {
-				"type": "string",
-				"defaultValue": "AFS"
+				"type": "string"
 			},
 			"SOURCE_STORAGE_ACCOUNT": {
-				"type": "string",
-				"defaultValue": "adfsa5214"
+				"type": "string"
 			},
 			"SOURCE_AKV_SECRET_NAME": {
-				"type": "string",
-				"defaultValue": "adfsa5214AccountKey"
+				"type": "string"
 			},
 			"SOURCE_FILESHARE": {
-				"type": "string",
-				"defaultValue": "adf-data"
+				"type": "string"
 			},
 			"SOURCE_COLLECTION_DIR": {
-				"type": "string",
-				"defaultValue": "TEMPPARTNER/MBR/RawData/Archive"
+				"type": "string"
 			},
 			"SOURCE_FILEMASK": {
-				"type": "string",
-				"defaultValue": "TempPartner_T_I_20221127.txt"
+				"type": "string"
 			},
 			"SOURCE_FILE_MODIFIED_THRESHOLD": {
-				"type": "int",
-				"defaultValue": 15
+				"type": "int"
 			},
 			"SOURCE_DELETE_AFTER_COLLECT": {
-				"type": "bool",
-				"defaultValue": false
+				"type": "bool"
 			},
 			"SOURCE_COLLECT_FROM_SUBFOLDERS": {
-				"type": "bool",
-				"defaultValue": false
+				"type": "bool"
 			},
 			"SINK_TYPE": {
-				"type": "string",
-				"defaultValue": "ABS"
+				"type": "string"
 			},
 			"SINK_STORAGE_ACCOUNT": {
-				"type": "string",
-				"defaultValue": "adfsa5214"
+				"type": "string"
 			},
 			"SINK_AKV_SECRET_NAME": {
-				"type": "string",
-				"defaultValue": "adfsa5214AccountKey"
+				"type": "string"
 			},
 			"SINK_FILESHARE": {
-				"type": "string",
-				"defaultValue": "adf-temp"
+				"type": "string"
 			},
 			"SINK_FILEPATH": {
 				"type": "string",

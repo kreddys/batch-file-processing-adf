@@ -24,12 +24,6 @@
 			},
 			"container": {
 				"type": "string"
-			},
-			"directory": {
-				"type": "string"
-			},
-			"fileName": {
-				"type": "string"
 			}
 		},
 		"folder": {
