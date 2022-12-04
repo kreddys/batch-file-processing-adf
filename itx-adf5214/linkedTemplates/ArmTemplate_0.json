@@ -769,7 +769,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_EACH_FILE')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COPY_FILE')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1249,7 +1249,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_AFS_COLLECT')]",
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_COLLECT')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1280,7 +1280,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "ADF_GEN_COPY_EACH_FILE",
+											"referenceName": "ADF_GEN_COPY_FILE",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -1445,7 +1445,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "ADF_GEN_COPY_EACH_FILE",
+											"referenceName": "ADF_GEN_COPY_FILE",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -1572,7 +1572,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_FUNCTION')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_EACH_FILE')]",
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COPY_FILE')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
 			]
 		},
@@ -1636,64 +1636,11 @@
 						}
 					},
 					{
-						"name": "Lookup ReceiptAzureFileStorage",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "SetTransType",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureTableSource",
-								"azureTableSourceQuery": {
-									"value": "@concat('Producer eq ''',variables('ADF_PRODUCER'),''' and TransactionType eq ''',variables('ADF_TRANSTYPE'),'''')",
-									"type": "Expression"
-								},
-								"azureTableSourceIgnoreTableNotFound": false
-							},
-							"dataset": {
-								"referenceName": "ADF_GEN_ATS",
-								"type": "DatasetReference",
-								"parameters": {
-									"atsTableName": {
-										"value": "@pipeline().globalParameters.CODELISTS_AFS_RECEIPT_TABLE",
-										"type": "Expression"
-									},
-									"akvBaseURL": {
-										"value": "@pipeline().globalParameters.AKV_BASE_URL",
-										"type": "Expression"
-									},
-									"atsStorageAccountKeySecretName": {
-										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
-										"type": "Expression"
-									},
-									"atsStorageAccountName": {
-										"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
-										"type": "Expression"
-									}
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
 						"name": "ForEach ReceiptConfig",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Lookup ReceiptAzureFileStorage",
+								"activity": "Query Protocol Config",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1702,7 +1649,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Lookup ReceiptAzureFileStorage').output.value",
+								"value": "@activity('Query Protocol Config').output.value",
 								"type": "Expression"
 							},
 							"activities": [
@@ -1768,7 +1715,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "ADF_GEN_AFS_COLLECT",
+											"referenceName": "ADF_GEN_COLLECT",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true,
@@ -1783,6 +1730,78 @@
 											}
 										}
 									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Query Protocol Config",
+						"type": "Switch",
+						"dependsOn": [
+							{
+								"activity": "SetTransType",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"on": {
+								"value": "@variables('ADF_PROTOCOL')",
+								"type": "Expression"
+							},
+							"cases": [
+								{
+									"value": "AFS",
+									"activities": [
+										{
+											"name": "Lookup ADFReceiptAFS",
+											"type": "Lookup",
+											"dependsOn": [],
+											"policy": {
+												"timeout": "0.12:00:00",
+												"retry": 0,
+												"retryIntervalInSeconds": 30,
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"source": {
+													"type": "AzureTableSource",
+													"azureTableSourceQuery": {
+														"value": "@concat('Producer eq ''',variables('ADF_PRODUCER'),''' and TransactionType eq ''',variables('ADF_TRANSTYPE'),'''')",
+														"type": "Expression"
+													},
+													"azureTableSourceIgnoreTableNotFound": false
+												},
+												"dataset": {
+													"referenceName": "ADF_GEN_ATS",
+													"type": "DatasetReference",
+													"parameters": {
+														"atsTableName": {
+															"value": "@pipeline().globalParameters.CODELISTS_AFS_RECEIPT_TABLE",
+															"type": "Expression"
+														},
+														"akvBaseURL": {
+															"value": "@pipeline().globalParameters.AKV_BASE_URL",
+															"type": "Expression"
+														},
+														"atsStorageAccountKeySecretName": {
+															"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+															"type": "Expression"
+														},
+														"atsStorageAccountName": {
+															"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+															"type": "Expression"
+														}
+													}
+												},
+												"firstRowOnly": false
+											}
+										}
+									]
 								}
 							]
 						}
@@ -1813,9 +1832,9 @@
 				"lastPublishTime": "2022-12-02T01:46:11Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]",
 				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
-				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_AFS_COLLECT')]"
+				"[concat(variables('factoryId'), '/pipelines/ADF_GEN_COLLECT')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
 			]
 		}
 	]
