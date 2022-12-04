@@ -126,7 +126,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"atsTableName": {
-											"value": "@pipeline().globalParameters.CODELISTS_ARCHIVE_PRODUCER_TABLE",
+											"value": "@pipeline().globalParameters.CODELISTS_ARCHIVE_PRODUCER",
 											"type": "Expression"
 										},
 										"akvBaseURL": {

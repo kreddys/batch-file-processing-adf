@@ -191,7 +191,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"atsTableName": {
-								"value": "@if(equals(variables('ADF_PROTOCOL'),'AFS'),\npipeline().globalParameters.CODELISTS_AFS_RECEIPT_TABLE,'NA')",
+								"value": "@if(equals(variables('ADF_PROTOCOL'),'AFS'),\npipeline().globalParameters.CODELISTS_RECEIPT_AFS,'NA')",
 								"type": "Expression"
 							},
 							"akvBaseURL": {
