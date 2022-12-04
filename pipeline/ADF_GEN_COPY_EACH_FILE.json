@@ -144,6 +144,12 @@
 			},
 			"COPY_TYPE": {
 				"type": "string"
+			},
+			"SOURCE_TYPE": {
+				"type": "string"
+			},
+			"SINK_TYPE": {
+				"type": "string"
 			}
 		},
 		"variables": {
