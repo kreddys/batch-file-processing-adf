@@ -61,6 +61,10 @@
 			"WORKING_DATA_PROTOCOL": {
 				"type": "string",
 				"value": "ABS"
+			},
+			"CODELISTS_ARCHIVE_PRODUCER": {
+				"type": "string",
+				"value": "ADFArchvieProducer"
 			}
 		}
 	},
