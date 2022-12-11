@@ -73,6 +73,10 @@
 			"ITX_DATA_STORAGE_ACCOUNT_AKV_SECRET_NAME": {
 				"type": "string",
 				"value": "adfsa5214AccountKey"
+			},
+			"ITX_DATA_STORAGE_ACCOUNT_FILESHARE": {
+				"type": "string",
+				"value": "itx-rs-pvc-data"
 			}
 		}
 	},
