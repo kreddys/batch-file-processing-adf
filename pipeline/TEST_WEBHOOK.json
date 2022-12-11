@@ -1,0 +1,57 @@
+{
+	"name": "TEST_WEBHOOK",
+	"properties": {
+		"activities": [
+			{
+				"name": "WebHook1",
+				"type": "WebHook",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://36a4-2600-1700-3220-3680-8a5-1458-d709-bbcd.ngrok.io/api/ItxAsync_HttpStart",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"itxUri": "http://localhost:5214/itx-rs/v1/maps/direct/",
+						"frameworkMap": {
+							"name": "ADF_GEN_FMWK",
+							"audit": true,
+							"trace": false,
+							"inputCard": 1,
+							"outputCard": 2
+						},
+						"runMap": {
+							"name": "ADF_EMPLOYEES_JSON2XML",
+							"audit": true,
+							"trace": true,
+							"waitSeconds": 5,
+							"maxRetries": 1,
+							"inputs": [
+								{
+									"cardNumber": 1,
+									"source": "FILE",
+									"file": "/data/tmp/ADF_EMPLOYEES_JSON2XML/employees.json"
+								}
+							],
+							"outputs": [
+								{
+									"cardNumber": 2,
+									"source": "FILE",
+									"file": "/data/tmp/ADF_EMPLOYEES_JSON2XML/employees2.xml"
+								}
+							]
+						}
+					},
+					"timeout": "00:10:00",
+					"reportStatusOnCallBack": true
+				}
+			}
+		],
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": []
+	}
+}
