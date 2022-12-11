@@ -89,6 +89,10 @@
 			"ITX_RS_URI": {
 				"type": "string",
 				"value": "http://localhost:5214/itx-rs/v1/maps/direct/"
+			},
+			"ITX_RS_FRAMEWORK_MAP": {
+				"type": "string",
+				"value": "ADF_GEN_FMWK"
 			}
 		}
 	},
