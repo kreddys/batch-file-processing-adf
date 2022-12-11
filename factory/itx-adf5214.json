@@ -97,6 +97,10 @@
 			"ITX_RS_FRAMEWORKMAP_AUDIT": {
 				"type": "bool",
 				"value": true
+			},
+			"ITX_RS_FRAMEWORKMAP_TRACE": {
+				"type": "bool",
+				"value": true
 			}
 		}
 	},
