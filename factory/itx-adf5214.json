@@ -101,6 +101,10 @@
 			"ITX_RS_FRAMEWORKMAP_TRACE": {
 				"type": "bool",
 				"value": true
+			},
+			"ITX_RS_FRAMEWORKMAP_INPUTCARD": {
+				"type": "int",
+				"value": 1
 			}
 		}
 	},
