@@ -105,6 +105,10 @@
 			"ITX_RS_FRAMEWORKMAP_INPUTCARD": {
 				"type": "int",
 				"value": 1
+			},
+			"ITX_RS_FRAMEWORKMAP_OUTPUTCARD": {
+				"type": "int",
+				"value": 2
 			}
 		}
 	},
