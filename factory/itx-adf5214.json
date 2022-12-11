@@ -77,6 +77,10 @@
 			"ITX_DATA_STORAGE_ACCOUNT_FILESHARE": {
 				"type": "string",
 				"value": "itx-rs-pvc-data"
+			},
+			"ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR": {
+				"type": "string",
+				"value": "tmp/"
 			}
 		}
 	},
