@@ -7,7 +7,7 @@
 				"type": "Wait",
 				"dependsOn": [
 					{
-						"activity": "Copy to AFS",
+						"activity": "Lookup ADFBatchTranslate",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -102,6 +102,59 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Lookup ADFBatchTranslate",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Copy to AFS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureTableSource",
+						"azureTableSourceQuery": {
+							"value": "@concat('Producer eq ''',pipeline().parameters.Producer,\r\n''' and TransactionType eq ''',pipeline().parameters.TransactionType,\r\n''' and Consumer eq ''',pipeline().parameters.Consumer,\r\n'''')",
+							"type": "Expression"
+						},
+						"azureTableSourceIgnoreTableNotFound": false
+					},
+					"dataset": {
+						"referenceName": "ADF_GEN_ATS",
+						"type": "DatasetReference",
+						"parameters": {
+							"atsTableName": {
+								"value": "@pipeline().globalParameters.CODELISTS_BATCH_TRANSLATE",
+								"type": "Expression"
+							},
+							"akvBaseURL": {
+								"value": "@pipeline().globalParameters.AKV_BASE_URL",
+								"type": "Expression"
+							},
+							"atsStorageAccountKeySecretName": {
+								"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+								"type": "Expression"
+							},
+							"atsStorageAccountName": {
+								"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
 			}
 		],
 		"parameters": {
@@ -113,9 +166,17 @@
 				"type": "string",
 				"defaultValue": "TempPartner_T_I_20221127.txt"
 			},
-			"ConsumerName": {
+			"Consumer": {
 				"type": "string",
 				"defaultValue": "EVICORE-MBR"
+			},
+			"Producer": {
+				"type": "string",
+				"defaultValue": "TEMPPARTNER"
+			},
+			"TransactionType": {
+				"type": "string",
+				"defaultValue": "MBR"
 			}
 		},
 		"folder": {
