@@ -93,6 +93,10 @@
 			"ITX_RS_FRAMEWORKMAP_NAME": {
 				"type": "string",
 				"value": "ADF_GEN_FMWK"
+			},
+			"ITX_RS_FRAMEWORKMAP_AUDIT": {
+				"type": "bool",
+				"value": true
 			}
 		}
 	},
