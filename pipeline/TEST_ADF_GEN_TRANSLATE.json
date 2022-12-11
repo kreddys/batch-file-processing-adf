@@ -1,0 +1,111 @@
+{
+	"name": "TEST_ADF_GEN_TRANSLATE",
+	"properties": {
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			},
+			{
+				"name": "Copy to AFS",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": false,
+							"wildcardFolderPath": {
+								"value": "@pipeline().parameters.FileLocation",
+								"type": "Expression"
+							},
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.FileName",
+								"type": "Expression"
+							},
+							"deleteFilesAfterCompletion": false
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureFileStorageWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ADF_GEN_ABS_SOURCE",
+						"type": "DatasetReference",
+						"parameters": {
+							"storageAccountName": {
+								"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+								"type": "Expression"
+							},
+							"storageAccountKeySecretName": {
+								"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+								"type": "Expression"
+							},
+							"container": {
+								"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ADF_GEN_AFS_SINK",
+						"type": "DatasetReference",
+						"parameters": {
+							"akvSecretname": {
+								"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+								"type": "Expression"
+							},
+							"storageAccount": {
+								"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"FileLocation": {
+				"type": "string",
+				"defaultValue": "WorkingDir/bcbad2a1-6999-408a-83ae-865b4ee18a07/5c2a12dc-47a4-4979-a91c-3a0813952b59"
+			},
+			"FileName": {
+				"type": "string",
+				"defaultValue": "TempPartner_T_I_20221127.txt"
+			},
+			"ConsumerName": {
+				"type": "string",
+				"defaultValue": "EVICORE-MBR"
+			}
+		},
+		"folder": {
+			"name": "TEST"
+		},
+		"annotations": []
+	}
+}
