@@ -65,6 +65,10 @@
 			"CODELISTS_CONSUMER_LOOKUP": {
 				"type": "string",
 				"value": "ADFConsumerLookup"
+			},
+			"ITX_DATA_STORAGE_ACCOUNT": {
+				"type": "string",
+				"value": "adfsa5214"
 			}
 		}
 	},
