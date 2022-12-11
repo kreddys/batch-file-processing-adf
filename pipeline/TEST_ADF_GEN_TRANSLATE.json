@@ -5,7 +5,14 @@
 			{
 				"name": "Wait1",
 				"type": "Wait",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Copy to AFS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"waitTimeInSeconds": 1
@@ -77,11 +84,19 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"akvSecretname": {
-								"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+								"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_AKV_SECRET_NAME",
 								"type": "Expression"
 							},
 							"storageAccount": {
-								"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+								"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT",
+								"type": "Expression"
+							},
+							"fileShare": {
+								"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE",
+								"type": "Expression"
+							},
+							"filePath": {
+								"value": "@concat(pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)",
 								"type": "Expression"
 							}
 						}
