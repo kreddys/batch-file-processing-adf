@@ -96,7 +96,7 @@
 								"type": "Expression"
 							},
 							"filePath": {
-								"value": "@concat(pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)",
+								"value": "@replace(pipeline().parameters.FileLocation,pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR)",
 								"type": "Expression"
 							}
 						}
