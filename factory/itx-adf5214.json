@@ -113,6 +113,10 @@
 			"ITX_RS_RUNMAP_WAITSECONDS": {
 				"type": "int",
 				"value": 10
+			},
+			"ITX_RS_RUNMAP_MAXRETRIES": {
+				"type": "int",
+				"value": 10
 			}
 		}
 	},
