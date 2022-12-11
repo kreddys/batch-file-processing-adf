@@ -90,7 +90,7 @@
 				"type": "string",
 				"value": "http://localhost:5214/itx-rs/v1/maps/direct/"
 			},
-			"ITX_RS_FRAMEWORK_MAP": {
+			"ITX_RS_FRAMEWORKMAP_NAME": {
 				"type": "string",
 				"value": "ADF_GEN_FMWK"
 			}
