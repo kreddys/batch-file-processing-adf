@@ -1,0 +1,59 @@
+{
+	"name": "ADF_GEN_ABS_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADF_GEN_ABS",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"storageAccountName": {
+					"value": "@dataset().storageAccountName",
+					"type": "Expression"
+				},
+				"storageAccountKeySecretName": {
+					"value": "@dataset().storageAccountKeySecretName",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"storageAccountName": {
+				"type": "string"
+			},
+			"storageAccountKeySecretName": {
+				"type": "string"
+			},
+			"Conatiner": {
+				"type": "string"
+			},
+			"Directory": {
+				"type": "string"
+			},
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "GENERIC"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Directory",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().Conatiner",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}
