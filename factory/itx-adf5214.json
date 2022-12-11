@@ -85,6 +85,10 @@
 			"CODELISTS_BATCH_TRANSLATE": {
 				"type": "string",
 				"value": "ADFBatchTranslate"
+			},
+			"ITX_RS_URI": {
+				"type": "string",
+				"value": "http://localhost:5214/itx-rs/v1/maps/direct/"
 			}
 		}
 	},
