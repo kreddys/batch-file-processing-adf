@@ -3,15 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Wait1",
-				"type": "Wait",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"waitTimeInSeconds": 1
-				}
-			},
-			{
 				"name": "Copy to AFS",
 				"type": "Copy",
 				"dependsOn": [],
@@ -146,12 +137,12 @@
 							}
 						}
 					},
-					"firstRowOnly": false
+					"firstRowOnly": true
 				}
 			},
 			{
-				"name": "Create MapRequest",
-				"type": "ExecuteDataFlow",
+				"name": "ForEach OutptutCard",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "Lookup ADFBatchTranslate",
@@ -160,20 +151,74 @@
 						]
 					}
 				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
+					"items": {
+						"value": "@split(activity('Lookup ADFBatchTranslate').output.firstRow.DeliverOutputCards,',')",
+						"type": "Expression"
 					},
-					"traceLevel": "Fine"
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Append Output",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Output",
+								"value": {
+									"value": "\"cardNumber\": @{item()},\"source\": \"FILE\",\"file\": \"@{concat(pipeline().parameters.FileLocation,'/out/','out',string(item()))}\"",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set MapRequest",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEach OutptutCard",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "MapRequest",
+					"value": {
+						"value": "{\n        \"itxUri\": \"@{pipeline().globalParameters.ITX_RS_URI}\",\n        \"frameworkMap\": {\n            \"name\": \"@{pipeline().globalParameters.ITX_RS_FRAMEWORKMAP_NAME}\",\n            \"audit\": @{toLower(string(pipeline().globalParameters.ITX_RS_FRAMEWORKMAP_AUDIT))},\n            \"trace\": @{toLower(string(pipeline().globalParameters.ITX_RS_FRAMEWORKMAP_TRACE))},\n            \"inputCard\": @{pipeline().globalParameters.ITX_RS_FRAMEWORKMAP_INPUTCARD},\n            \"outputCard\": @{pipeline().globalParameters.ITX_RS_FRAMEWORKMAP_OUTPUTCARD}\n        },\n        \"runMap\": {\n            \"name\": \"@{activity('Lookup ADFBatchTranslate').output.firstRow.MapName}\",\n            \"audit\": false,\n            \"trace\": false,\n            \"waitSeconds\": @{pipeline().globalParameters.ITX_RS_RUNMAP_WAITSECONDS},\n            \"maxRetries\": @{pipeline().globalParameters.ITX_RS_RUNMAP_MAXRETRIES},\n            \"inputs\": [\n                {\n                    \"cardNumber\": 1,\n                    \"source\": \"FILE\",\n                    \"file\": \"@{concat(pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)}\"\n                }\n            ],\n            \"outputs\": @{variables('Output')}\n        }\n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ITX Async WebHook",
+				"type": "WebHook",
+				"dependsOn": [
+					{
+						"activity": "Set MapRequest",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://db09-2600-1700-3220-3680-4-e6d0-35f8-17b8.ngrok.io/api/ItxAsync_HttpStart",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"value": "@json(variables('MapRequest'))",
+						"type": "Expression"
+					},
+					"timeout": "00:1:00",
+					"reportStatusOnCallBack": true
 				}
 			}
 		],
@@ -197,6 +242,20 @@
 			"TransactionType": {
 				"type": "string",
 				"defaultValue": "MBR"
+			}
+		},
+		"variables": {
+			"MapRequest": {
+				"type": "String"
+			},
+			"Outputs": {
+				"type": "Array"
+			},
+			"Output": {
+				"type": "Array"
+			},
+			"Json": {
+				"type": "Array"
 			}
 		},
 		"folder": {
