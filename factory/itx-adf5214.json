@@ -90,26 +90,6 @@
 				"type": "string",
 				"value": "https://8543-2600-1700-3220-3680-b4d3-df5d-650a-3912.ngrok.io/itx-rs/v1/maps/direct/"
 			},
-			"ITX_RS_FRAMEWORKMAP_NAME": {
-				"type": "string",
-				"value": "ADF_GEN_FMWK"
-			},
-			"ITX_RS_FRAMEWORKMAP_AUDIT": {
-				"type": "bool",
-				"value": true
-			},
-			"ITX_RS_FRAMEWORKMAP_TRACE": {
-				"type": "bool",
-				"value": true
-			},
-			"ITX_RS_FRAMEWORKMAP_INPUTCARD": {
-				"type": "int",
-				"value": 1
-			},
-			"ITX_RS_FRAMEWORKMAP_OUTPUTCARD": {
-				"type": "int",
-				"value": 2
-			},
 			"ITX_RS_RUNMAP_WAITSECONDS": {
 				"type": "int",
 				"value": 10
