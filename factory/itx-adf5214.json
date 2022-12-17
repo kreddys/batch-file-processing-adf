@@ -28,7 +28,7 @@
 			},
 			"WORKINGDATA_ROOT_DIR": {
 				"type": "string",
-				"value": "WorkingDir/"
+				"value": "workingDir/"
 			},
 			"REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME": {
 				"type": "string",
