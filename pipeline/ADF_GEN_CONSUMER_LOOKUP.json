@@ -19,21 +19,11 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"waitOnCompletion": true,
-								"parameters": {
-									"FileLocation": {
-										"value": "@pipeline().parameters.FileLocation",
-										"type": "Expression"
-									},
-									"FileName": {
-										"value": "@pipeline().parameters.FileName",
-										"type": "Expression"
-									},
-									"ConsumerName": {
-										"value": "@item().Consumer",
-										"type": "Expression"
-									}
-								}
+								"pipeline": {
+									"referenceName": "ADF_GEN_TRANSLATE",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
 							}
 						}
 					]
