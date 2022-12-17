@@ -80,7 +80,7 @@
 			},
 			"ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR": {
 				"type": "string",
-				"value": "tmp/"
+				"value": "workingDir/"
 			},
 			"CODELISTS_BATCH_TRANSLATE": {
 				"type": "string",
