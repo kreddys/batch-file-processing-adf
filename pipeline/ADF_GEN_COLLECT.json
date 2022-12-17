@@ -201,7 +201,7 @@
 									"referenceName": "ADF_GEN_COPY_FILE",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": false,
+								"waitOnCompletion": true,
 								"parameters": {
 									"SOURCE_TYPE": {
 										"value": "@pipeline().globalParameters.WORKING_DATA_PROTOCOL",
@@ -333,7 +333,7 @@
 									"referenceName": "ADF_GEN_CONSUMER_LOOKUP",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": false,
+								"waitOnCompletion": true,
 								"parameters": {
 									"FileLocation": {
 										"value": "@activity('Get WokingDirFilePath').output.value[0].output.value",
