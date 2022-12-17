@@ -208,7 +208,10 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"url": "https://e94a-2600-1700-3220-3680-6930-6d64-aaf6-23b9.ngrok.io/api/ItxAsync_HttpStart",
+					"url": {
+						"value": "@pipeline().globalParameters.ITX_ASYNC_DURABLE_FUNCTION_URL",
+						"type": "Expression"
+					},
 					"method": "POST",
 					"headers": {
 						"Content-Type": "application/json"
