@@ -88,7 +88,7 @@
 			},
 			"ITX_RS_URI": {
 				"type": "string",
-				"value": "http://localhost:5214/itx-rs/v1/maps/direct/"
+				"value": "https://8543-2600-1700-3220-3680-b4d3-df5d-650a-3912.ngrok.io/itx-rs/v1/maps/direct/"
 			},
 			"ITX_RS_FRAMEWORKMAP_NAME": {
 				"type": "string",
