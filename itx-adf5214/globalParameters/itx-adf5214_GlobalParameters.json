@@ -25,7 +25,7 @@
 	},
 	"WORKINGDATA_ROOT_DIR": {
 		"type": "string",
-		"value": "WorkingDir/"
+		"value": "workingDir/"
 	},
 	"REGEX_FILENAME_MATCH_FUNCTION_SECRET_NAME": {
 		"type": "string",
@@ -62,5 +62,41 @@
 	"CODELISTS_CONSUMER_LOOKUP": {
 		"type": "string",
 		"value": "ADFConsumerLookup"
+	},
+	"ITX_DATA_STORAGE_ACCOUNT": {
+		"type": "string",
+		"value": "adfsa5214"
+	},
+	"ITX_DATA_STORAGE_ACCOUNT_AKV_SECRET_NAME": {
+		"type": "string",
+		"value": "adfsa5214AccountKey"
+	},
+	"ITX_DATA_STORAGE_ACCOUNT_FILESHARE": {
+		"type": "string",
+		"value": "itx-rs-pvc-data"
+	},
+	"ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR": {
+		"type": "string",
+		"value": "workingDir/"
+	},
+	"CODELISTS_BATCH_TRANSLATE": {
+		"type": "string",
+		"value": "ADFBatchTranslate"
+	},
+	"ITX_RS_URI": {
+		"type": "string",
+		"value": "https://8543-2600-1700-3220-3680-b4d3-df5d-650a-3912.ngrok.io/itx-rs/v1/maps/direct/"
+	},
+	"ITX_RS_RUNMAP_WAITSECONDS": {
+		"type": "int",
+		"value": 10
+	},
+	"ITX_RS_RUNMAP_MAXRETRIES": {
+		"type": "int",
+		"value": 10
+	},
+	"ITX_ASYNC_DURABLE_FUNCTION_URL": {
+		"type": "string",
+		"value": "https://itxasync.azurewebsites.net/api/ItxAsync_HttpStart"
 	}
 }

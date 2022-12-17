@@ -391,6 +391,14 @@
 											"ConsumersList": {
 												"value": "@activity('Lookup Consumers').output.value",
 												"type": "Expression"
+											},
+											"Producer": {
+												"value": "@pipeline().parameters.ReceiptConfig.Producer",
+												"type": "Expression"
+											},
+											"TransactionType": {
+												"value": "@pipeline().parameters.ReceiptConfig.TransactionType",
+												"type": "Expression"
 											}
 										}
 									}
@@ -508,8 +516,16 @@
 												"value": "@pipeline().parameters.FileName",
 												"type": "Expression"
 											},
-											"ConsumerName": {
-												"value": "@item().Consumer",
+											"Consumer": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Producer": {
+												"value": "@pipeline().parameters.Producer",
+												"type": "Expression"
+											},
+											"TransactionType": {
+												"value": "@pipeline().parameters.TransactionType",
 												"type": "Expression"
 											}
 										}
@@ -532,6 +548,12 @@
 					},
 					"ConsumersList": {
 						"type": "array"
+					},
+					"Producer": {
+						"type": "string"
+					},
+					"TransactionType": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -942,44 +964,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ADF_GEN_TRANSLATE')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Wait1",
-						"type": "Wait",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 1
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"FileLocation": {
-						"type": "string"
-					},
-					"FileName": {
-						"type": "string"
-					},
-					"ConsumerName": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "GENERIC"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ADF_RECEIPT_AFS_TEMPPARTNER_MBR')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1226,6 +1210,286 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/TEST_ADF_GEN_TRANSLATE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy to AFS",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": {
+										"value": "@pipeline().parameters.FileLocation",
+										"type": "Expression"
+									},
+									"wildcardFileName": {
+										"value": "@pipeline().parameters.FileName",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureFileStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_GEN_ABS_SOURCE",
+								"type": "DatasetReference",
+								"parameters": {
+									"storageAccountName": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"storageAccountKeySecretName": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"container": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_GEN_AFS_SINK",
+								"type": "DatasetReference",
+								"parameters": {
+									"akvSecretname": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_AKV_SECRET_NAME",
+										"type": "Expression"
+									},
+									"storageAccount": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"fileShare": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE",
+										"type": "Expression"
+									},
+									"filePath": {
+										"value": "@replace(pipeline().parameters.FileLocation,pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Lookup ADFBatchTranslate",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Copy to AFS",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureTableSource",
+								"azureTableSourceQuery": {
+									"value": "@concat('Producer eq ''',pipeline().parameters.Producer,\r\n''' and TransactionType eq ''',pipeline().parameters.TransactionType,\r\n''' and Consumer eq ''',pipeline().parameters.Consumer,\r\n'''')",
+									"type": "Expression"
+								},
+								"azureTableSourceIgnoreTableNotFound": false
+							},
+							"dataset": {
+								"referenceName": "ADF_GEN_ATS",
+								"type": "DatasetReference",
+								"parameters": {
+									"atsTableName": {
+										"value": "@pipeline().globalParameters.CODELISTS_BATCH_TRANSLATE",
+										"type": "Expression"
+									},
+									"akvBaseURL": {
+										"value": "@pipeline().globalParameters.AKV_BASE_URL",
+										"type": "Expression"
+									},
+									"atsStorageAccountKeySecretName": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"atsStorageAccountName": {
+										"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "ForEach OutptutConfig",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup ADFBatchTranslate",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@split(activity('Lookup ADFBatchTranslate').output.firstRow.DeliverOutputCards,',')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Append Output",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Output",
+										"value": {
+											"value": "{\"cardNumber\": @{item()},\"source\": \"FILE\",\"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/out',string(item()))}\"}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Set MapRequest",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "ForEach OutptutConfig",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "MapRequest",
+							"value": {
+								"value": "{\n        \"itxUri\": \"@{pipeline().globalParameters.ITX_RS_URI}\",\n        \"map\": {\n            \"name\": \"@{activity('Lookup ADFBatchTranslate').output.firstRow.MapName}\",\n            \"audit\": true,\n            \"trace\": false,\n            \"waitSeconds\": @{pipeline().globalParameters.ITX_RS_RUNMAP_WAITSECONDS},\n            \"maxRetries\": @{pipeline().globalParameters.ITX_RS_RUNMAP_MAXRETRIES},\n            \"inputs\": [\n                {\n                    \"cardNumber\": 1,\n                    \"source\": \"FILE\",\n                    \"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)}\"\n                }\n            ],\n            \"outputs\": [@{replace(join(variables('Output'),','),'//','')}]\n        }\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ITX Async WebHook",
+						"type": "WebHook",
+						"dependsOn": [
+							{
+								"activity": "Set MapRequest",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().globalParameters.ITX_ASYNC_DURABLE_FUNCTION_URL",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"value": "@json(variables('MapRequest'))",
+								"type": "Expression"
+							},
+							"timeout": "00:1:00",
+							"reportStatusOnCallBack": true
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"FileLocation": {
+						"type": "string",
+						"defaultValue": "workingDir/bcbad2a1-6999-408a-83ae-865b4ee18a07/5c2a12dc-47a4-4979-a91c-3a0813952b59"
+					},
+					"FileName": {
+						"type": "string",
+						"defaultValue": "employees.json"
+					},
+					"Consumer": {
+						"type": "string",
+						"defaultValue": "EVICORE-MBR"
+					},
+					"Producer": {
+						"type": "string",
+						"defaultValue": "TEMPPARTNER"
+					},
+					"TransactionType": {
+						"type": "string",
+						"defaultValue": "MBR"
+					}
+				},
+				"variables": {
+					"MapRequest": {
+						"type": "String"
+					},
+					"Output": {
+						"type": "Array"
+					},
+					"Json": {
+						"type": "Array"
+					},
+					"Outputs": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "TEST"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SOURCE')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/TEST_COPY')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1449,6 +1713,134 @@
 				"annotations": []
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TEST_WEBHOOK')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WebHook1",
+						"type": "WebHook",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://36a4-2600-1700-3220-3680-8a5-1458-d709-bbcd.ngrok.io/api/ItxAsync_HttpStart",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"itxUri": "http://localhost:5214/itx-rs/v1/maps/direct/",
+								"frameworkMap": {
+									"name": "ADF_GEN_FMWK",
+									"audit": true,
+									"trace": false,
+									"inputCard": 1,
+									"outputCard": 2
+								},
+								"runMap": {
+									"name": "ADF_EMPLOYEES_JSON2XML",
+									"audit": true,
+									"trace": true,
+									"waitSeconds": 5,
+									"maxRetries": 1,
+									"inputs": [
+										{
+											"cardNumber": 1,
+											"source": "FILE",
+											"file": "/data/tmp/ADF_EMPLOYEES_JSON2XML/employees.json"
+										}
+									],
+									"outputs": [
+										{
+											"cardNumber": 2,
+											"source": "FILE",
+											"file": "/data/tmp/ADF_EMPLOYEES_JSON2XML/employees2.xml"
+										}
+									]
+								}
+							},
+							"timeout": "00:10:00",
+							"reportStatusOnCallBack": true
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "TEST"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_JSON')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADF_GEN_ABS",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"storageAccountName": {
+							"value": "@dataset().storageAccountName",
+							"type": "Expression"
+						},
+						"storageAccountKeySecretName": {
+							"value": "@dataset().storageAccountKeySecretName",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"storageAccountName": {
+						"type": "string"
+					},
+					"storageAccountKeySecretName": {
+						"type": "string"
+					},
+					"Conatiner": {
+						"type": "string"
+					},
+					"Directory": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().FileName",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().Directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().Conatiner",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_ABS')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ADF_GEN_ABS_SINK')]",
@@ -2033,6 +2425,281 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADF_GEN_AKV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_GEN_TRANSLATE')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy to AFS",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": false,
+									"wildcardFolderPath": {
+										"value": "@pipeline().parameters.FileLocation",
+										"type": "Expression"
+									},
+									"wildcardFileName": {
+										"value": "@pipeline().parameters.FileName",
+										"type": "Expression"
+									},
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureFileStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ADF_GEN_ABS_SOURCE",
+								"type": "DatasetReference",
+								"parameters": {
+									"storageAccountName": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"storageAccountKeySecretName": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"container": {
+										"value": "@pipeline().globalParameters.WORKINGDATA_FILE_SHARE",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ADF_GEN_AFS_SINK",
+								"type": "DatasetReference",
+								"parameters": {
+									"akvSecretname": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_AKV_SECRET_NAME",
+										"type": "Expression"
+									},
+									"storageAccount": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT",
+										"type": "Expression"
+									},
+									"fileShare": {
+										"value": "@pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE",
+										"type": "Expression"
+									},
+									"filePath": {
+										"value": "@replace(pipeline().parameters.FileLocation,pipeline().globalParameters.WORKINGDATA_ROOT_DIR,pipeline().globalParameters.ITX_DATA_STORAGE_ACCOUNT_FILESHARE_ROOTDIR)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Lookup ADFBatchTranslate",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Copy to AFS",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureTableSource",
+								"azureTableSourceQuery": {
+									"value": "@concat('Producer eq ''',pipeline().parameters.Producer,\r\n''' and TransactionType eq ''',pipeline().parameters.TransactionType,\r\n''' and Consumer eq ''',pipeline().parameters.Consumer,\r\n'''')",
+									"type": "Expression"
+								},
+								"azureTableSourceIgnoreTableNotFound": false
+							},
+							"dataset": {
+								"referenceName": "ADF_GEN_ATS",
+								"type": "DatasetReference",
+								"parameters": {
+									"atsTableName": {
+										"value": "@pipeline().globalParameters.CODELISTS_BATCH_TRANSLATE",
+										"type": "Expression"
+									},
+									"akvBaseURL": {
+										"value": "@pipeline().globalParameters.AKV_BASE_URL",
+										"type": "Expression"
+									},
+									"atsStorageAccountKeySecretName": {
+										"value": "@pipeline().globalParameters.SA_KEY_SECRET_NAME",
+										"type": "Expression"
+									},
+									"atsStorageAccountName": {
+										"value": "@pipeline().globalParameters.CODELISTS_STORAGE_ACCOUNT",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": true
+						}
+					},
+					{
+						"name": "ForEach OutptutConfig",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup ADFBatchTranslate",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@split(activity('Lookup ADFBatchTranslate').output.firstRow.DeliverOutputCards,',')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Append Output",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Output",
+										"value": {
+											"value": "{\"cardNumber\": @{item()},\"source\": \"FILE\",\"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/out',string(item()))}\"}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Set MapRequest",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "ForEach OutptutConfig",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "MapRequest",
+							"value": {
+								"value": "{\n        \"itxUri\": \"@{pipeline().globalParameters.ITX_RS_URI}\",\n        \"map\": {\n            \"name\": \"@{activity('Lookup ADFBatchTranslate').output.firstRow.MapName}\",\n            \"audit\": true,\n            \"trace\": false,\n            \"waitSeconds\": @{pipeline().globalParameters.ITX_RS_RUNMAP_WAITSECONDS},\n            \"maxRetries\": @{pipeline().globalParameters.ITX_RS_RUNMAP_MAXRETRIES},\n            \"inputs\": [\n                {\n                    \"cardNumber\": 1,\n                    \"source\": \"FILE\",\n                    \"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)}\"\n                }\n            ],\n            \"outputs\": [@{replace(join(variables('Output'),','),'//','')}]\n        }\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ITX Async WebHook",
+						"type": "WebHook",
+						"dependsOn": [
+							{
+								"activity": "Set MapRequest",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().globalParameters.ITX_ASYNC_DURABLE_FUNCTION_URL",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"value": "@json(variables('MapRequest'))",
+								"type": "Expression"
+							},
+							"timeout": "00:1:00",
+							"reportStatusOnCallBack": true
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"FileLocation": {
+						"type": "string"
+					},
+					"FileName": {
+						"type": "string"
+					},
+					"Consumer": {
+						"type": "string"
+					},
+					"Producer": {
+						"type": "string"
+					},
+					"TransactionType": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"MapRequest": {
+						"type": "String"
+					},
+					"Output": {
+						"type": "Array"
+					},
+					"Json": {
+						"type": "Array"
+					},
+					"Outputs": {
+						"type": "Array"
+					}
+				},
+				"folder": {
+					"name": "GENERIC"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ABS_SOURCE')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_AFS_SINK')]",
+				"[concat(variables('factoryId'), '/datasets/ADF_GEN_ATS')]"
 			]
 		}
 	]
