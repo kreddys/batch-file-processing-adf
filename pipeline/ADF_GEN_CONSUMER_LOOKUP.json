@@ -23,7 +23,29 @@
 									"referenceName": "ADF_GEN_TRANSLATE",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"FileLocation": {
+										"value": "@pipeline().parameters.FileLocation",
+										"type": "Expression"
+									},
+									"FileName": {
+										"value": "@pipeline().parameters.FileName",
+										"type": "Expression"
+									},
+									"Consumer": {
+										"value": "@item()",
+										"type": "Expression"
+									},
+									"Producer": {
+										"value": "@pipeline().parameters.Producer",
+										"type": "Expression"
+									},
+									"TransactionType": {
+										"value": "@pipeline().parameters.TransactionType",
+										"type": "Expression"
+									}
+								}
 							}
 						}
 					]
@@ -39,6 +61,12 @@
 			},
 			"ConsumersList": {
 				"type": "array"
+			},
+			"Producer": {
+				"type": "string"
+			},
+			"TransactionType": {
+				"type": "string"
 			}
 		},
 		"folder": {

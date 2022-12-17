@@ -346,6 +346,14 @@
 									"ConsumersList": {
 										"value": "@activity('Lookup Consumers').output.value",
 										"type": "Expression"
+									},
+									"Producer": {
+										"value": "@pipeline().parameters.ReceiptConfig.Producer",
+										"type": "Expression"
+									},
+									"TransactionType": {
+										"value": "@pipeline().parameters.ReceiptConfig.TransactionType",
+										"type": "Expression"
 									}
 								}
 							}
