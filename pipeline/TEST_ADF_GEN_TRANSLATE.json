@@ -225,7 +225,7 @@
 		"parameters": {
 			"FileLocation": {
 				"type": "string",
-				"defaultValue": "WorkingDir/bcbad2a1-6999-408a-83ae-865b4ee18a07/5c2a12dc-47a4-4979-a91c-3a0813952b59"
+				"defaultValue": "workingDir/bcbad2a1-6999-408a-83ae-865b4ee18a07/5c2a12dc-47a4-4979-a91c-3a0813952b59"
 			},
 			"FileName": {
 				"type": "string",
