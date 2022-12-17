@@ -190,7 +190,7 @@
 				"typeProperties": {
 					"variableName": "MapRequest",
 					"value": {
-						"value": "{\n        \"itxUri\": \"@{pipeline().globalParameters.ITX_RS_URI}\",\n        \"map\": {\n            \"name\": \"@{activity('Lookup ADFBatchTranslate').output.firstRow.MapName}\",\n            \"audit\": true,\n            \"trace\": true,\n            \"waitSeconds\": @{pipeline().globalParameters.ITX_RS_RUNMAP_WAITSECONDS},\n            \"maxRetries\": @{pipeline().globalParameters.ITX_RS_RUNMAP_MAXRETRIES},\n            \"inputs\": [\n                {\n                    \"cardNumber\": 1,\n                    \"source\": \"FILE\",\n                    \"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)}\"\n                }\n            ],\n            \"outputs\": [@{replace(join(variables('Output'),','),'//','')}]\n        }\n}",
+						"value": "{\n        \"itxUri\": \"@{pipeline().globalParameters.ITX_RS_URI}\",\n        \"map\": {\n            \"name\": \"@{activity('Lookup ADFBatchTranslate').output.firstRow.MapName}\",\n            \"audit\": true,\n            \"trace\": false,\n            \"waitSeconds\": @{pipeline().globalParameters.ITX_RS_RUNMAP_WAITSECONDS},\n            \"maxRetries\": @{pipeline().globalParameters.ITX_RS_RUNMAP_MAXRETRIES},\n            \"inputs\": [\n                {\n                    \"cardNumber\": 1,\n                    \"source\": \"FILE\",\n                    \"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/',pipeline().parameters.FileName)}\"\n                }\n            ],\n            \"outputs\": [@{replace(join(variables('Output'),','),'//','')}]\n        }\n}",
 						"type": "Expression"
 					}
 				}
