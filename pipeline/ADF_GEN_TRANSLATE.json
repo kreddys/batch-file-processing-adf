@@ -1,5 +1,5 @@
 {
-	"name": "TEST_ADF_GEN_TRANSLATE",
+	"name": "ADF_GEN_TRANSLATE",
 	"properties": {
 		"activities": [
 			{
@@ -262,7 +262,7 @@
 			}
 		},
 		"folder": {
-			"name": "TEST"
+			"name": "GENERIC"
 		},
 		"annotations": []
 	}
