@@ -167,7 +167,7 @@
 							"typeProperties": {
 								"variableName": "Output",
 								"value": {
-									"value": "{\"cardNumber\": @{item()},\"source\": \"FILE\",\"file\": \"@{concat('/',pipeline().parameters.FileLocation,'/out',string(item()))}\"}",
+									"value": "{\"cardNumber\": @{item()},\"source\": \"FILE\",\"file\": \"@{concat('/data/',pipeline().parameters.FileLocation,'/out',string(item()))}\"}",
 									"type": "Expression"
 								}
 							}
