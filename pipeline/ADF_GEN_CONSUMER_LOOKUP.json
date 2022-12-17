@@ -34,7 +34,7 @@
 										"type": "Expression"
 									},
 									"Consumer": {
-										"value": "@item()",
+										"value": "@item().Consumer",
 										"type": "Expression"
 									},
 									"Producer": {
